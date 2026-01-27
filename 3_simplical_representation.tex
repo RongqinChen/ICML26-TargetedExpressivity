@@ -1,76 +1,39 @@
 \section{Simplicial Representation of Graphs}
-Graphs contain higher-order interactions—dense, multi-way connectivity patterns that challenge the expressive power of GNNs. To capture these structures, we introduce a hierarchy of \emph{cohesive vertex sets} grounded in vertex connectivity and organize them into a \emph{simplicial complex} that reflects the multi-scale architecture of a graph. This complex yields a canonical, tree-structured invariant: the \emph{simplex network}, which encodes the full face--coface inclusion hierarchy. The simplex network provides expressive, interpretable representations for graph comparison and substructure enumeration, supports rigorous analysis of GNN expressivity, and inspires the design of more efficient yet provably expressive architectures.
+To capture higher-order connectivity patterns beyond pairwise edges, we introduce a hierarchy of \emph{$c$-cohesive vertex sets} based on vertex connectivity. These sets serve as building blocks for a simplicial complex encoding structural cohesion across multiple scales. We define the \emph{cohesive simplicial complex}, a topological representation that generalizes graph connectivity to higher dimensions while preserving the original graph structure.
 
 \subsection{$c$-Cohesive Sets}
-We begin by formalizing tightly connected vertex subsets using classical connectivity.
+We formalize tightly connected vertex subsets extending the notion of local connectivity.
+
 \begin{definition}[$c$-Cohesive Set]
     \label{def:c-cohesive}
-    A vertex set $S \subseteq V(G)$ is \emph{$c$-cohesive} for $c \in \mathbb{Z}_{\ge 0}$ if either (i) $c = 0$ and $|S| = 1$, or (ii) $c \ge 1$, $|S| \ge c+1$, and $\kappa_G(u,v) \ge c$ for all distinct $u,v \in S$, where $\kappa_G(u,v)$ denotes the local vertex connectivity between $u$ and $v$ in $G$.
+    A non-empty vertex set $S \subseteq V(G)$ is \emph{$c$-cohesive} for integer $c \ge 0$ if either:
+    \begin{enumerate}[leftmargin=*,nosep]
+        \item $c = 0$ and $|S| = 1$ (singletons are trivially cohesive), or
+        \item $c \ge 1$, $|S| \ge c+1$, and $\kappa_G(u,v) \ge c$ for all distinct $u, v \in S$.
+    \end{enumerate}
 \end{definition}
-By Menger’s theorem, this means that removing any $c-1$ vertices from $G$ leaves all vertices of $S$ in the same connected component. Crucially, the witnessing paths may traverse vertices outside $S$, so $c$-cohesiveness depends on the global embedding of $S$ in $G$, not just its induced subgraph.
 
-\begin{remark}
-    \label{rem:cohesive_properties}
-    Cohesiveness is monotone in $c$: if $S$ is $c$-cohesive, then it is $c'$-cohesive for every integer $c'$ with $0 \le c' \le c$. A $c$-cohesive set is \emph{minimal} if and only if it has exactly $c+1$ vertices. Moreover, every non-empty proper subset of such a set with size $c'+1$ is a minimal $c'$-cohesive set for some $c' < c$.
-\end{remark}
+By Menger's theorem, condition (2) requires that every vertex pair in $S$ remains mutually reachable after removing any $c-1$ vertices from $G$. The vertex-disjoint paths witnessing this robustness may traverse vertices outside $S$; thus, $c$-cohesiveness depends on the global embedding of $S$ in $G$, not solely on the induced subgraph $G[S]$.
 
-These minimal sets serve as atomic motifs of cohesion. Larger cohesive regions emerge via overlap:
+A $c$-cohesive set is (inclusion-wise) \emph{minimal} if no proper non-empty subset is $c$-cohesive. Definition~\ref{def:c-cohesive} implies: (i) cohesiveness is monotone—if $S$ is $c$-cohesive, then $S$ is $c'$-cohesive for all $c' \le c$; (ii) any minimal $c$-cohesive set has exactly $c+1$ vertices; (iii) every $(c'{+}1)$-subset of such a minimal set is minimal $c'$-cohesive for some $c' < c$.
+
+Minimal cohesive sets thus serve as atomic motifs of structural resilience, while larger cohesive regions assemble from their overlaps via the following property.
 
 \begin{lemma}
     \label{lem:union_cohesive}
-    If two $c$-cohesive sets $S_1$ and $S_2$ satisfy $|S_1 \cap S_2| \ge c$, then $S_1 \cup S_2$ is also $c$-cohesive.
+    Let $S_1, S_2$ be $c$-cohesive sets in $G$. If $|S_1 \cap S_2| \ge c$, then $S_1 \cup S_2$ is also $c$-cohesive.
 \end{lemma}
 
 \subsection{The Cohesive Simplicial Complex}
-
-We now organize these motifs into a simplicial complex.
+We consolidate all cohesive motifs into a simplicial complex organizing them across scales.
 
 \begin{definition}[Cohesive Simplicial Complex]
     \label{def:cohesive-complex}
-    The \emph{cohesive simplicial complex} $\Delta(G)$ is the abstract simplicial complex whose simplices are precisely the minimal $c$-cohesive sets of $G$ for all $c \ge 0$. To preserve the underlying graph structure, each $1$-simplex $\{u,v\}$ is labeled to indicate whether $(u,v) \in E(G)$.
+    The \emph{cohesive simplicial complex} $\Delta(G)$ is the abstract simplicial complex whose simplices are all non-empty subsets of $V(G)$ that are $c$-cohesive for some $c \ge 0$.
 \end{definition}
 
-By Remark~\ref{rem:cohesive_properties}, $\Delta(G)$ is closed under taking non-empty subsets, satisfying the axioms of an abstract simplicial complex. Its dimension reflects the highest order of cohesion present in $G$, and inclusion among simplices encodes refinement across scales.
+Closure under non-empty subsets follows from monotonicity of cohesiveness, satisfying the axioms of an abstract simplicial complex. For simplex $S \in \Delta(G)$, its dimension is $\dim(S) = |S| - 1$, and its \emph{cohesion level} is the largest $c$ such that $S$ is $c$-cohesive.
 
-\subsection{From Facets to the Simplex Network}
+A key property is the structure of its $1$-skeleton. Since any two vertices $u,v$ in the same connected component of $G$ satisfy $\kappa_G(u,v) \ge 1$, they form a $1$-cohesive set. Consequently, $\Delta(G)^{(1)}$ is a complete graph on each connected component of $G$. To preserve the original adjacency structure, we annotate each $1$-simplex $\{u,v\}$ with binary label $\ell(\{u,v\}) = \mathds{1}[(u,v) \in E(G)]$.
 
-The maximal simplices (facets) of $\Delta(G)$ reveal how cohesive cores intersect. Their overlaps correspond to fundamental graph separators:
-
-\begin{lemma}
-    \label{lem:intersection-separator}
-    The intersection of any two distinct facets in $\Delta(G)$ is a minimal vertex separator of $G$.
-\end{lemma}
-
-This leads to an intermediate bipartite representation:
-
-\begin{definition}[Facet Network]
-    \label{def:facet_network}
-    The \emph{facet network} of $G$ is a bipartite graph with facet nodes (maximal simplices of $\Delta(G)$) and separator nodes (their pairwise intersections), connected when a separator is a face of a facet.
-\end{definition}
-
-The facet network is acyclic and invariant under graph isomorphism, but it omits non-maximal simplices. 
-Thus, we refine it to include all simplices and add edges to encode the face--coface relation.
-
-\begin{definition}[Simplex Network]
-    \label{def:simplex_network}
-    The \emph{simplex network} $\Upsilon(G)$ is the graph whose vertices are all simplices of $\Delta(G)$, 
-    and where two simplices $\tau$ and $\sigma$ are adjacent if one is a maximal proper face of the other—that is, 
-    $\tau \subsetneq \sigma$ and $\dim(\sigma) = \dim(\tau) + 1$, or vice versa.
-\end{definition}
-
-$\Upsilon(G)$ can be constructed from the facet network by (1) expanding each facet--separator edge into a maximal chain of nested simplices, and (2) recursively adding all missing cover relations. Because every minimal separator remains a cut node, the tree-like structure is preserved:
-
-\begin{lemma}
-    \label{lem:simplex_network_acyclic}
-    The simplex network $\Upsilon(G)$ is acyclic (a tree if $G$ is connected) and is a structural invariant of $G$.
-\end{lemma}
-
-Moreover, it faithfully reflects subgraph structure:
-
-\begin{lemma}
-    \label{lem:subgraph-subnetwork-correspondence}
-    For any connected subgraph $Q \subseteq G$, the minimal $c$-cohesive sets contained in $V(Q)$ form a connected subcomplex of $\Delta(G)$, inducing a connected subnetwork in $\Upsilon(G)$.
-\end{lemma}
-
-Thus, the \emph{simplex network} serves as our primary structural invariant: a compact, hierarchical, and interpretable encoding of higher-order cohesion in $G$, designed to overcome the limitations of standard GNNs and enable both practical graph analytics and theoretical expressivity analysis.
-
+This construction yields a multi-scale topological representation of $G$ in which higher-dimensional simplices encode dense, resilient interaction patterns invisible to standard message-passing GNNs operating solely on $E(G)$.

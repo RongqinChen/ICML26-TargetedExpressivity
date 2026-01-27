@@ -1,16 +1,69 @@
 \section{Preliminaries}
+This section establishes notation and reviews core concepts from graph theory and combinatorial topology that form the foundation of our work.
+Specifically, we require the notion of vertex connectivity in graphs and its generalization via the framework of abstract simplicial complexes.
 
+\paragraph{Notations.} Let $\{\cdot\}$ denote a set, $\{\!\!\{ \cdot \}\!\!\}$ denote a multiset (a set that allows repetition), and $(\cdot)$ denote a tuple.
+As usual, let $[n] = \{1,2,\ldots, n \}$. Let $G=(V(G),E(G), \ell_G)$ be an undirected, colored graph, where $V(G)=[n]$ is the vertex set with $n$ vertices, $E(G)\subseteq V(G)\times V(G)$ is the edge set, and $\ell_G\colon V(G) \to C$ is the graph coloring function with $C=\{c_1,\ldots,c_{nc}\}$ denote a set of $nc$ distinct colors.
+
+Let $\spd(u, v)$ denote the shortest path distance between $u$ and $v$.
+We use $x_{v} \in \mathbb{R}^{d_v}$ to denote attributes of vertex $v \in V(G)$ and $e_{uv}\in \mathbb{R}^{d_e}$ to denote attributes of edge $(u,v) \in E(G)$. They are usually the one-hot encoding of the vertex and edge color respectively. We say that two graphs $G$ and $H$ are \textit{isomorphic} (denoted as $G\simeq H$) if there exists a bijection $\pi \colon V(G) \to V(H)$ such that $\forall u, v \in V(G), (u, v) \in E(G) \Leftrightarrow (\pi(u), \pi(v)) \in E(H)$ and $\forall v \in V(G), \ell_G(v) = \ell_H(\pi(v)) $.
+
+
+
+\paragraph{Graph Connectivity.}
 Throughout, we work with finite, simple, undirected graphs. For a positive integer $n$, let $K_n$ denote the complete graph on $n$ vertices.
 
-\paragraph{Graph Connectivity and Local Connectivity.}
-For a graph $G$, a \emph{separator} is a vertex set $S \subseteq V(G)$ whose removal disconnects $G$. It is \emph{minimal} if no proper subset of $S$ is a separator. 
-The \emph{(vertex) connectivity} $\kappa(G)$ is defined by $\kappa(K_1) = 0$, $\kappa(K_n) = n-1$ for $n \ge 2$, and for every other connected graph $G$, $\kappa(G)$ is the size of a smallest separator. A graph is \emph{$c$-connected} if $\kappa(G) \ge c$.
-For distinct vertices $u, v \in V(G)$, the \emph{local connectivity} $\kappa_G(u,v)$ is the maximum number of internally vertex-disjoint $u$--$v$ paths in $G$. When $u$ and $v$ are adjacent, the edge $(u,v)$ itself is such a path. This path-based definition is equivalent to the classical separator-based one for non-adjacent pairs, by Menger’s Theorem:
+For a graph $G$, a \emph{(vertex) separator} is a vertex set $S \subseteq V(G)$ such that the induced subgraph $G[V(G) \setminus S]$ has more than one connected component. A separator is \emph{minimal} if no proper subset of $S$ is a separator.
+The \emph{(vertex) connectivity} $\kappa(G)$ is defined as follows: $\kappa(K_n) = n-1$ for $n \ge 1$ (with the convention $K_1$ is $0$-connected), and for any other connected graph $G$, $\kappa(G)$ is the minimum size of a separator. A graph is \emph{$c$-connected} if $\kappa(G) \ge c$.
+
+For distinct vertices $u, v \in V(G)$, the \emph{local connectivity} $\kappa_G(u,v)$ is the maximum number of internally vertex-disjoint $u$--$v$ paths in $G$. For non-adjacent pairs, Menger's Theorem provides the fundamental equivalence between this path-counting view and the separator-based view of connectivity.
 \begin{theorem}[Menger’s Theorem (vertex version)~\cite{Menger1927,Diestel2017}]
     \label{thm:menger}
-    For distinct non-adjacent vertices $u$ and $v$ in a graph $G$, the size of a minimum $u$--$v$ separator equals the maximum number of internally vertex-disjoint $u$--$v$ paths.
+    Let $u$ and $v$ be distinct, non-adjacent vertices in a graph $G$. The minimum size of a vertex set $S \subseteq V(G)\setminus\{u,v\}$ that separates $u$ from $v$ equals $\kappa_G(u,v)$.
 \end{theorem}
+The global connectivity relates to local connectivity via $\kappa(G) = \min\{\kappa_G(u,v) : u, v \in V(G), u \neq v\}$ for non-complete graphs.
 
 \paragraph{Abstract Simplicial Complexes.}
-An \emph{abstract simplicial complex} $\Delta$ on a finite vertex set $V$ is a collection of non-empty subsets of $V$ that is closed under taking non-empty subsets: if $\sigma \in \Delta$ and $\emptyset \neq \tau \subseteq \sigma$, then $\tau \in \Delta$. Elements of $\Delta$ are called \emph{simplices}. A simplex $\sigma$ with $|\sigma| = d+1$ is a \emph{$d$-simplex}, and we set $\dim(\sigma) := d$. The dimension of $\Delta$ is $\dim(\Delta) := \max\{\dim(\sigma) : \sigma \in \Delta\}$.
-If $\tau \subseteq \sigma$ with $\tau, \sigma \in \Delta$, then $\tau$ is a \emph{face} of $\sigma$ and $\sigma$ is a \emph{coface} of $\tau$. The \emph{$d$-skeleton} $\Delta^{(d)}$ consists of all simplices in $\Delta$ of dimension at most $d$. In particular, $\Delta^{(0)} = V$ and $\Delta^{(1)}$ is a simple graph on $V$. We say that $\Delta$ is \emph{connected} if its $1$-skeleton $\Delta^{(1)}$ is connected as a graph.
+To extend the concept of connectivity beyond pairwise relations, we employ the language of abstract simplicial complexes.
+An \emph{abstract simplicial complex} $\Delta$ on a finite vertex set $V$ is a collection of non-empty subsets of $V$ closed under inclusion: if $\sigma \in \Delta$ and $\emptyset \neq \tau \subseteq \sigma$, then $\tau \in \Delta$.
+Elements of $\Delta$ are called \emph{simplices}.
+A simplex $\sigma$ with $|\sigma| = d+1$ is a \emph{$d$-simplex}, and $\dim(\sigma) := d$. The \emph{dimension} of $\Delta$ is $\dim(\Delta) := \max\{\dim(\sigma) : \sigma \in \Delta\}$.
+For $\tau \subseteq \sigma$, we say $\tau$ is a \emph{face} of $\sigma$ and $\sigma$ is a \emph{coface} of $\tau$.
+If $\dim(\sigma)=\dim(\tau)+1$, $\tau$ is an immediate \emph{face} of $\sigma$ and $\sigma$ is an immediate \emph{coface} of $\tau$.
+The \emph{$d$-skeleton} $\Delta^{(d)}$ is the subcomplex consisting of all simplices of dimension at most $d$. In particular, $\Delta^{(0)} = V$ and $\Delta^{(1)}$ is a simple graph on $V$. A complex $\Delta$ is \emph{connected} if its $1$-skeleton $\Delta^{(1)}$ is connected as a graph.
+
+
+
+\paragraph{The Weisfeiler-Lehman Hierarchy.}
+The $k$-dimensional Weisfeiler-Lehman ($k$-WL) algorithm is a color-refinement procedure for graph isomorphism testing.
+For $k \ge 2$, the $k$-WL algorithm assigns colors to $k$-tuples $\vv \in V(G)^k$.
+Given a $k$-tuple $\vv = (v_1,\ldots,v_k)$ and a vertex $t \in V(G)$,
+let $\vv_{/i} = (v_1,\ldots,v_{i-1},v_{i+1},\ldots,v_k)$ denote the tuple obtained by removing the $i$-th element.
+And let $\vv_{t/i} = (v_1,\ldots,v_{i-1},t,v_{i+1},\ldots,v_k)$ denote the tuple obtained by replacing the $i$-th coordinate with $t$.
+We define the \emph{$i$-th neighborhood} of $\vv$ as $N_i(\vv) = \{\vv_{t/i} \mid t \in V(G)\}$ for $i \in [k]$.
+The initial coloring $\mathcal{C}^{k,0}_{\vv}$ typically encodes the isomorphism type of the subgraph induced by the vertices in $\vv$.
+At iteration $l$, the $k$-WL algorithm refines the coloring via
+\begin{equation}
+    \label{eq:kwl}
+    \mathcal{C}^{k,l}_{\vv}
+    = \Gamma \left(
+    \mathcal{C}^{k,l{-}1}_{\vv},\
+    \left(
+    \multiset{\mathcal{C}^{k,l{-}1}_{\vu} \mid \vu \in N_i(\vv)} \mid i \in [k]
+    \right)
+    \right),
+\end{equation}
+where $\Gamma$ is an injective hash function applied uniformly to all tuples.
+
+\paragraph{$k$-WL GNNs.}
+A $k$-WL GNN adopts the message-passing paradigm of the $k$-WL algorithm, thereby achieving equivalent expressive power.
+The initial vertex representation is set to $\mX^{k,0}_{\vv} = \mathcal{C}^{k,0}_{\vv}$.
+At each layer $l$, for every $k$-tuple $\vv$, the network updates its representation $\mX^{k,l}_{\vv}$ as follows:
+\begin{equation}
+    \label{eq:kwl_gnns}
+    \begin{split}
+        \mH^{k,l}_{\vv_{/i}} & = \oplus\left(\multiset{\mX^{k,l-1}_{\vu} \mid \vu \in N_i(\vv)}\right),                       \\
+        \mX^{k,l}_{\vv}      & = \Psi^{k,l}\left(\mX^{k,l-1}_{\vv},\mH^{k,l}_{\vv_{/1}}, \ldots, \mH^{k,l}_{\vv_{/k}}\right),
+    \end{split}
+\end{equation}
+where $\Psi^{k,l}$ is a learnable update function and $\oplus$ denotes a permutation-invariant multiset aggregation function (e.g., sum or mean).
