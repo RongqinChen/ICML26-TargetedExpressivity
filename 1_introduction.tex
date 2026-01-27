@@ -26,3 +26,8 @@ Section~\ref{sec:conclusion} discusses implications and future directions.
 Due to space constraints, we defer extended background to Appendix~\ref{sec:detailed_background} and a comprehensive survey of related work on GNN expressivity and higher-order architectures to Appendix~\ref{sec:related_work}.
 Appendix~\ref{sec:counterexamples} includes counterexamples confirming that $\theta$-cohesive $\theta$-simplices generally require $\theta$-FWL computation and are thus irreducible, while non-cohesive simplices are safely pruned.
 
+A GNN gains expressive power when it can distinguish intricate substructures such as cliques and cycles.
+However, the link between its message-passing dynamics and the underlying topology of the input graph remains opaque, obscuring our understanding of expressivity, redundancy, and generalization.
+We make this link explicit through the \emph{simplicial representation} of a graph $G$: an abstract simplicial complex $\Delta(G)$ in which each $d$-simplex corresponds to a $(d+1)$-vertex motif with strong internal connectivity that is provably hard for GNNs to distinguish.
+In this representation, face--coface relations encode refinements of vertex tuples under higher-order message passing, yielding a topological perspective on how GNNs process and differentiate graph structure.
+
