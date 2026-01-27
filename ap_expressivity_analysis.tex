@@ -43,13 +43,13 @@ Proof of Lemma~\ref{lem:maximal_simplex_network_invariant}:
     Let $G$ and $H$ be isomorphic graphs with isomorphism $\pi: V(G) \to V(H)$. 
     We show that the maximal simplex networks of $G$ and $H$ are isomorphic.
     
-    First, observe that $\pi$ preserves the cohesive structure: a set $S \subseteq V(G)$ is $c$-cohesive in $G$ if and only if $\pi(S) \subseteq V(H)$ is $c$-cohesive in $H$. 
+    First, observe that $\pi$ preserves the cohesive structure: a set $S \subseteq V(G)$ is $c$-cohesive in $G$ iff $\pi(S) \subseteq V(H)$ is $c$-cohesive in $H$. 
     This follows since $\kappa_G(u,v) = \kappa_H(\pi(u),\pi(v))$ for all $u,v \in V(G)$.
     
     Consequently, $\pi$ maps minimal $c$-cohesive sets in $G$ to minimal $c$-cohesive sets in $H$, preserving the simplicial complex structure. 
     In particular, maximal simplices in $\Delta(G)$ correspond bijectively to maximal simplices in $\Delta(H)$ under $\pi$.
     
-    Similarly, minimal separators in $G$ correspond to minimal separators in $H$: if $S$ separates vertices $u,v$ in $G$, then $\pi(S)$ separates $\pi(u),\pi(v)$ in $H$, and $S$ is minimal if and only if $\pi(S)$ is minimal.
+    Similarly, minimal separators in $G$ correspond to minimal separators in $H$: if $S$ separates vertices $u,v$ in $G$, then $\pi(S)$ separates $\pi(u),\pi(v)$ in $H$, and $S$ is minimal iff $\pi(S)$ is minimal.
     
     The incidence relations are preserved: if maximal simplices $\sigma,\varrho$ in $\Delta(G)$ intersect in separator $\tau$, then the corresponding maximal simplices $\pi(\sigma),\pi(\varrho)$ in $\Delta(H)$ intersect in separator $\pi(\tau)$. 
     
