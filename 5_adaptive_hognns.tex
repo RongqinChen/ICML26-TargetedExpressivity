@@ -1,0 +1,318 @@
+\section{Connectivity-Adaptive Hierarchical GNNs}
+\label{sec:connectivity_adaptive_hierarchical_gnns}
+
+Proofs for theorems in this section can be found in Appendix~\ref{sec:proof_for_adaptive}.
+
+\subsection{Computational Redundancy of $k$-FWL GNNs on Graphs Containing No $c$-Cohesive Sets}
+
+\subsection{Architecture Overview}
+
+\subsection{Connectivity Profiler}
+
+
+% \subsubsection{$c$-Blocks and Hierarchical Decomposition}
+% \label{subsubsec:c-blocks}
+
+% Maximal cohesive sets organize the graph into overlapping regions of high connectivity.
+
+% \begin{definition}[$c$-Block]
+% \label{def:c-block}
+% A \emph{$c$-block} is a maximal $c$-cohesive subset of $V(G)$ with respect to inclusion.
+% \end{definition}
+
+% For $c=1$ and $c=2$, $c$-blocks correspond exactly to connected components and biconnected components (blocks in the usual sense), respectively. The $c$-blocks of a graph form a hierarchical family that can be represented by a tree.
+
+% \begin{definition}[Block Decomposition Tree]
+% \label{def:block-tree}
+% The \emph{block decomposition tree} $\mathcal{T}(G)$ of $G$ is a rooted tree defined recursively:
+% \begin{itemize}[leftmargin=*,nosep]
+%     \item The root represents $V(G)$ (considered as a $0$-block).
+%     \item For any node representing a $k$-block $B$, its children are the $(k+1)$-blocks that are maximal proper subsets of $B$.
+% \end{itemize}
+% \end{definition}
+
+% The tree is finite because the maximum possible cohesion for a set of size $n$ is $n-1$ (achieved by a clique). Each leaf corresponds to a maximal $c$-block that contains no higher-cohesion subsets. This tree provides a multi-scale view of the graph's connectivity structure.
+
+
+\subsection{Hierarchical Message-Passing Core}
+
+In this section, we present adaptive and expressive higher-order GNNs that leverage vertex connectivity hierarchies, 
+followed by a theoretical analysis of their expressivity and efficiency in comparison to state-of-the-art methods.
+
+\subsection{Efficient GNNs via Einstein Summation}
+\label{subsec:efficient_hognns}
+
+PPGN~\citep{maron2019provably} shows that matrix multiplication offers an efficient implementation of 2-FWL message passing for graphs with similar vertex counts. By avoiding the explicit construction of higher-order messages, it reduces both memory footprint and runtime. Extending this compactness principle to arbitrary order, we perform all $k$-tuple interactions in one shot through higher-order tensor products, compactly expressed via Einstein summation ($\operatorname{einsum}$)\footnote{Available in PyTorch (\href{https://pytorch.org/docs/stable/generated/torch.einsum.html}{torch.einsum}) and TensorFlow (\href{https://www.tensorflow.org/api_docs/python/tf/einsum}{tf.einsum}).}. The resulting \textbf{$k$-dimensional PPGN ($k$-PPGN)} retains the full subgraph expressivity of $k$-FWL while consuming significantly less memory and time on similarly sized graphs.
+
+To implement this architecture, we utilize a single dense tensor $\tX_{\text{pp}}^{k,l} \in \mathbb{R}^{B \times \aleph \times \cdots \times \aleph \times D}$ to store features for all possible $k$-tuples, where $B$ is the batch size, the next $k$ axes (each of size $\aleph$) index the vertices within each $k$-tuple, and $D$ represents the feature dimension per tuple. At layer $l$, the $k$-PPGN updates this tensor through the following steps:
+\begin{equation}
+\begin{aligned}
+\tT_i^{k,l} &= \Psi_{\text{pp},i}^{k,l}\left(\tX_{\text{pp}}^{k,l{-}1}\right), \quad i = 1, 2, \ldots, k, \\
+\tH^{k,l}_{\text{pp}} &= \operatorname{einsum}\left(\operatorname{formula},\ \tT_1^{k,l}, \tT_2^{k,l}, \ldots, \tT_k^{k,l}\right), \\
+\tX_{\text{pp}}^{k,l} &= \Phi^{k,l}_{\text{pp}}\left(\tX_{\text{pp}}^{k,l{-}1}, \tH^{k,l}_{\text{pp}}\right),
+\end{aligned}
+\end{equation}
+where both $\Psi_{\text{pp},i}^{k,l}$ and $\Phi^{k,l}_{\text{pp}}$ are learnable functions that update the feature vector for each $k$-tuple. 
+The Einstein summation formula is given by:
+\[
+btv_2\ldots v_k, \; bv_1 t\ldots v_k,\; \ldots,\; bv_1\ldots v_{k-1}t \to bv_1v_2\ldots v_k.
+\]
+This formulation enables the $\operatorname{einsum}$ function to compute each entry of $\tH^{k,l+1}_{\text{pp}}$ as:
+\begin{equation}
+    \notag
+    \begin{split}
+        &\tH^{k,l+1}_{\text{pp}}[b,v_1,v_2,\dots,v_k,d] \\
+        =& \sum_{t=1}^{\aleph} \prod_{i=1}^{k} \tT_i^{k,l}[b,v_1,\dots,v_{i-1},t,v_{i+1},\dots,v_k,d],
+    \end{split}
+\end{equation}
+where $b$ indexes the graph in the batch, $d$ denotes the feature channel, and $t$ represents the shared neighbor index being summed over.
+
+\noindent \textbf{Expressivity.}
+$k$-PPGN follow $k$-FWL update rules, ensuring equivalent expressivity:
+
+\begin{theorem}
+    \label{theorem:k_ppgns_expressivity}
+    $k$-PPGN matches $k$-FWL GNNs in subgraph expressivity.
+\end{theorem}
+
+\noindent \textbf{Efficiency.}
+Let $N_1, \ldots, N_B$ be the sizes of the graphs in a batch and set $\aleph = \max_i N_i$.  
+The \emph{space complexity} of $k$-PPGN is $\mathcal{O}(B\,\aleph^k D)$, which is lower than that of a naive $k$-FWL GNN, $\mathcal{O}\!\left(D\sum_{i=1}^B N_i^{k+1}\right)$, especially when the graphs have comparable numbers of vertices.  
+Comparing \emph{time complexity} is less straightforward: $k$-PPGN executes one dense tensor contraction with highly-optimized einsum kernels, whereas the baseline scatters sparse $(k+1)$-tuples.  
+Because the constants hidden in the $\mathcal{O}$-notation differ sharply between the two regimes, no clean asymptotic separation exists; empirical run-times are reported in Section~\ref{sec:experiments}.
+\begin{theorem}
+\label{theorem:k_ppgn_efficiency}
+$k$-PPGN offers superior space efficiency compared with naive $k$-FWL GNNs when the graphs in a batch contain comparable numbers of vertices.
+\end{theorem}
+
+\subsection{Structural Encodings for $k$-FWL GNNs}
+We begin by demonstrating that for a graph $G$ with normalized adjacency matrix $\widehat{A}$, the power series $\mP = [\mI; \hat{\mA}; \hat{\mA}^2; \ldots]$ encodes structural information equivalent to that captured by 2-FWL GNNs. This equivalence allows $\mP$ to effectively model multi-hop interactions among vertex triples. 
+Next, we introduce a novel structural encoding that generalizes $\mP$ to higher dimensions. This extension captures structural information equivalent to $k$-FWL GNNs, enabling the modeling of multi-hop interactions among $(k{+}1)$-tuples of vertices.
+
+\subsubsection{Equivalence of Polynomial Structural Encoding and 2-FWL GNNs}
+To understand why polynomial structural encoding is as powerful as 2-FWL GNNs, we examine how a 2-FWL GNN gathers structural information through its layers, assuming each layer uses a bijective (invertible) transformation. This ensures the GNN achieves maximal expressivity, offering an upper bound on distinguishing non-isomorphic graphs.
+
+\begin{theorem}
+Let $\hat{A}\in\mathbb{R}^{|V|\times |V|}$ be a (normalized) adjacency matrix of a graph $G=(V,E)$, and let
+$I\in\mathbb{R}^{|V|\times |V|}$ be the identity matrix.
+Consider a 2-FWL-style pair representation $X^{2,l}_{uv}$ at layer $l$.
+Then $X^{2,l}_{uv}$ can be expressed as a polynomial in $\hat{A}$ (and $I$), i.e.
+\[
+X^{2,l}_{uv}\ \in\ \mathrm{span}\{ (\hat{A}^d)_{uv} : 0\le d\le 2^l\},
+\]
+equivalently, there exist coefficients $w_{d}$ such that
+\[
+X^{2,l}_{uv} \;=\; \sum_{d=0}^{2^l} w_{d}\,(\hat{A}^d)_{uv},
+\qquad l\in\mathbb{Z}_{\ge 0}.
+\]
+In particular, if the initial layer contains the two basis terms
+\[
+X^{2,0}_{uv} \;=\; \bigl[\, I_{uv},\; \hat{A}_{uv}\,\bigr],
+\]
+then higher layers can be viewed as expanding to (a linear combination of)
+\[
+\bigl[\, I_{uv},\; \hat{A}_{uv},\; (\hat{A}^2)_{uv},\; \dots,\; (\hat{A}^{2l})_{uv}\,\bigr].
+\]
+\end{theorem}
+
+\begin{proof}
+We proceed by induction on $l$.
+
+\paragraph{Base case ($l=0$).}
+By assumption,
+\[
+X^{2,0}_{uv} = [I_{uv}, \hat{A}_{uv}],
+\]
+which is already a (degree-$1$) polynomial basis in $\hat{A}$ and $I=\hat{A}^0$.
+
+\paragraph{Induction hypothesis.}
+Assume that for some $i\in\mathbb{Z}_{\ge 0}$,
+\[
+X^{2,i}_{uv} \;=\; \sum_{d=0}^{2^l} w_{d}\,(\hat{A}^d)_{uv}.
+\]
+
+\paragraph{Induction step.}
+Consider the following pair-message-passing update (as in the note):
+\[
+X^{2,i+1}_{uv}
+\;=\;
+X^{2,i}_{uv} + \sum_{t\in V} X^{2,i}_{ut}\, X^{2,i}_{tv}.
+\]
+Substitute the induction hypothesis into the second term:
+\begin{align*}
+\sum_{t\in V} X^{2,i}_{ut}\,X^{2,i}_{tv}
+&=
+\sum_{t\in V}
+\left(\sum_{d_1=0}^{2^i} w_{d_1}\,(\hat{A}^{d_1})_{ut}\right)
+\left(\sum_{d_2=0}^{2^i} w_{d_2}\,(\hat{A}^{d_2})_{tv}\right)\\
+&=
+\sum_{d_1=0}^{2^i}\sum_{d_2=0}^{2^i}
+\left(\sum_{t\in V} w_{d_1}\,w_{d_2}\,(\hat{A}^{d_1})_{ut}\,(\hat{A}^{d_2})_{tv}\right).
+\end{align*}
+Using the standard matrix-product identity
+\[
+(\hat{A}^{d_1+d_2})_{uv} = \sum_{t\in V} (\hat{A}^{d_1})_{ut}\,(\hat{A}^{d_2})_{tv},
+\]
+the update becomes a linear combination of terms $(\hat{A}^{d})_{uv}$ where
+$d=d_1+d_2\le 2^{i+1}$. Together with the residual term $X^{2,i}_{uv}$ (which already lies in
+$\mathrm{span}\{(\hat{A}^d)_{uv}: 0\le d\le 2i\}$), we can rewrite $X^{2,i+1}_{uv}$ as
+a polynomial in $\hat{A}$ whose degree increases by at most the  $2$, i.e. it can be represented
+in the form
+\[
+X^{2,i+1}_{uv} \;=\; \sum_{d=0}^{2^{i+1}} w'_{d}\,(\hat{A}^d)_{uv}
+\]
+for suitable coefficients $w'_{d}$.
+
+Hence the claim holds for $k+1$, completing the induction.
+\end{proof}
+
+\subsubsection{Equivalence of Higher-Dimensional Polynomial Structural Encoding and $k$-FWL GNNs}
+
+
+ 
+\subsection{Adaptive Higher-order GNNs based on Vertex Connectivity Hierarchy}
+\label{sec:message_pruning}
+
+% \begin{figure}[h]
+%     \centering
+%     \includegraphics[scale=1.0]{figures/adaptive_hognns.pdf}
+%     \caption{Adaptive HOGNNs.}
+%     \label{fig:adaptive_hognns}
+% \end{figure}
+
+$k$-FWL GNNs perform message passing between $(k+1)$-tuples and their $k$-order sub-tuples. 
+As established in Subsection~\ref{section:universal-subgraph-expressivity}, for any $\kappa \in [1, k]$, $\kappa$-FWL GNNs are sufficient to distinguish all paths that follow $(\kappa{+}1)$-tuples excluded by $(\kappa{+}1)$-CVSs. Thus, the additional expressivity of $(\kappa{+}1)$-FWL GNNs is only necessary for distinguishing vertex sets with $(\kappa{+}1)$-fold connectivity.
+
+Motivated by this insight, we introduce \textbf{$k$-dimensional Graph Connectivity Hierarchy Networks ($k$-GCHNs)}, efficient GNNs leveraging vertex connectivity hierarchies to prune redundant message passing.
+$k$-GCHNs process only $(\kappa{+}1)$-tuples within $\kappa$-blocks (for $\kappa \leq k$), excluding those not part of any $\kappa$-CVS.
+This approach significantly reduces computational overhead while preserving the full subgraph expressivity of $k$-FWL GNNs.
+
+
+
+\noindent \textbf{Data Preprocessing.}
+The data preprocessing for $k$-GCHNs involves four key steps.
+\textbf{\emph{First}}, we construct a $k$-BlockTree for each graph to identify its vertex connectivity hierarchies up to order $k$.
+\textbf{\emph{Second}}, for each $\kappa \in [1, k]$ and each $\kappa$-block, we enumerate all simple $\kappa$-CVSs and generate all $(\kappa{+}1)$-tuples from the vertices of each simple $\kappa$-CVS.
+\textbf{\emph{Third}}, we partition each $(\kappa{+}1)$-tuple $\mathbf{v};t$ into $\kappa$-tuple $\mathbf{v}$ and vertex $t$,
+constructing a set $\mathcal{T}^{\kappa}$ containing all $\kappa$-tuples $\mathbf{v}$ and a set $\mathcal{C}^{\kappa}(\mathbf{v})$ storing all vertices $t$.
+\textbf{\emph{Finally}}, for each pair $(\mathbf{v}, t)$ where $\mathbf{v} \in \mathcal{T}^{\kappa}$ and $t \in \mathcal{C}^{\kappa}(\mathbf{v})$, we define the neighbor-tuple of $\mathbf{v}$ determined by $t$ as $\mathcal{N}^{\kappa}(\mathbf{v},t) = (\mathbf{v}_{t/1}, \mathbf{v}_{t/2}, \ldots, \mathbf{v}_{t/\kappa})$.
+By construction, all tuples in $\mathcal{N}^{\kappa}(\mathbf{v},t)$ belong to $\mathcal{T}^{\kappa}$ since they correspond to alternative partitions of the same simple $\kappa$-CVS. Additionally, $\mathbf{v};t$ is included in $\mathcal{T}^{\kappa{+}1}$.
+See Appendix~\ref{sec:data_preprocessing_k_gchns} for details on this data preprocessing procedure.
+
+\noindent \textbf{Message Passing Framework.}
+A $k$-GCHN consists of $k$ hierarchical neural blocks, where the $\kappa$-th block has $L_\kappa$ $\kappa$-FWL layers.
+At layer $l$ of block $\kappa$, each $\kappa$-tuple $\mathbf{v} \in \mathcal{T}^{\kappa}$ is updated as:
+\begin{equation}
+    \label{eq:gchn}
+    \begin{split}
+        \tC^{\kappa,l}_{\mathbf{v};t}          & = \Psi^{\kappa,l}_{\text{gch}}\left(\tX^{\kappa,l-1}_{\text{gch},\mathbf{u}} \mid \mathbf{u} \in \mathcal{N}^{\kappa}(\mathbf{v},t)\right)                                           \\
+        \tX^{\kappa,l}_{\text{gch},\mathbf{v}} & = \Phi^{\kappa,l}_{\text{gch}} \left(\tX^{\kappa,l-1}_{\text{gch},\mathbf{v}}, \bigoplus  \multiset{ \tC^{\kappa,l}_{\mathbf{v};t} \mid t\in \mathcal{C}^{\kappa}(\mathbf{v}) }\right),
+    \end{split}
+\end{equation}
+where each function mirrors its counterpart in $\kappa$-FWL layers (see~\Cref{eq:kfwl_gnns}).
+The first block takes vertex/edge features and structural encodings as initial inputs.
+For $\kappa \geq 2$, each block initializes using the outputs from the $(\kappa{-}1)$-th block to propagate messages up the hierarchy, along with $\kappa$-th-order structural encodings. Formally,
+\begin{equation}
+    \label{eq:gchn_initialization}
+    \tX^{\kappa,0}_{\text{gch},\mathbf{v};t} = \Phi^{\kappa,0}_{\text{gch}}\left(\tX^{\kappa{-}1,L}_{\text{gch},\mathbf{v}},\tX^{\kappa{-}1,L}_{\text{gch},\mathbf{v}_{t/1}},\dots, \tX^{\kappa{-}1,L}_{\text{gch},\mathbf{v}_{t/\kappa}}\right).
+\end{equation}
+
+\noindent \textbf{Enhanced Efficiency via $\kappa$-PPGN.}
+When all $\kappa$-blocks in the dataset have similar vertex counts, implementing the $\kappa$-th block as a $\kappa$-PPGN achieves superior efficiency.
+
+\noindent \textbf{Expressivity.}
+The $k$-BlockTree decomposition is unique for each graph.
+The message passing framework of $k$-GCHNs not only adheres to that of $k$-FWL GNNs but also maintains the connectivity between consecutive $\kappa$-blocks and $(\kappa{+}1)$-blocks, leading to the following result.\todo{stronger proof}
+\begin{theorem}
+    \label{theorem:k_gchns_expressivity}
+    $k$-GCHNs match $k$-FWL GNNs in subgraph expressivity.
+\end{theorem}
+
+\noindent \textbf{Efficiency.}
+The computational efficiency of $k$-GCHNs surpasses that of naively implemented $k$-FWL GNNs, particularly for graphs with sparse high-order connectivity. This improvement stems from limiting computations to $(\kappa{+}1)$-tuples forming simple $\kappa$-CVSs for all $\kappa \in [1, k]$, instead of evaluating all $N^{k+1}$ possible $(k+1)$-tuples.
+Let $M_\kappa$ represent the number of $\kappa$-blocks, and let $\aleph_\kappa$ denote the maximum size of these blocks. The \textbf{\emph{preprocessing complexity}} is primarily driven by the construction of the $k$-BlockTree and the enumeration of all simple $\kappa$-CVSs. Although this step can be computationally intensive for dense graphs, the reduction in training time achieved by $k$-GCHNs justifies the overhead.
+In terms of \textbf{\emph{message passing}}, the computational complexity per layer within a $\kappa$-block is approximately $\mathcal{O}(\sum_{\kappa=1}^k M_\kappa \cdot \aleph_\kappa^{\kappa{+}1} \cdot D)$. When employing a $\kappa$-PPGN as the $\kappa$-th block, the complexity is changed to approximately $\mathcal{O}(\sum_{\kappa=1}^k M_\kappa \cdot \aleph_\kappa^{\kappa} \cdot D)$.
+
+\begin{theorem}
+\label{theorem:k_gchn_efficiency}
+$k$-GCHNs significantly outperform naive $k$-FWL GNNs in computational efficiency.
+\end{theorem}
+
+% \begin{figure}[h]
+%     \centering
+%     \includegraphics[scale=1.0]{figures/improved_efficiency.pdf}
+%     \caption{Strategies for Improving Efficiency in HOGNNs.}
+%     \label{fig:im}
+% \end{figure}
+
+\subsection{Super-Separator-Guided Message Pruning for Improved Efficiency}
+\label{sec:connectivity_preserved}
+
+
+
+The \textsl{super-separator-guided decomposition} uniquely decomposes a $\kappa$-block into
+\textsl{SSF $\kappa$-CVSs}.
+To distinguish two $\kappa$-blocks with non-isomorphic structures, it suffices to analyze the structures of the resulting \textsl{SSF $\kappa$-CVSs} and their interconnections.
+This insight allows us to improve the efficiency of the $k$-GCHNs message passing framework through the \textsl{super-separator-guided decomposition}.
+Rather than capturing the interconnections among all simple $\kappa$-CVSs within each $\kappa$-block, we can efficiently differentiate $\kappa$-blocks by:
+(i) characterizing how simple $\kappa$-CVSs are connected within each \textsl{SSF $\kappa$-CVS}, and
+(ii) analyzing how these \textsl{SSF $\kappa$-CVSs} are interconnected within their parent $\kappa$-block.
+We refer to this optimized variant of $k$-GCHNs as \textbf{$k$-SS-GCHNs}.
+
+Below, we provide an overview of the data preprocessing, message passing framework, and theoretical analysis of expressiveness and efficiency for $k$-SS-GCHNs.
+
+\noindent \textbf{Data Preprocessing.}
+The data preprocessing for $k$-SS-GCHNs consists of four steps, similar to those for $k$-GCHNs. First, we construct a $k$-SS-BlockTree for each graph. The next three steps follow the same structure as in $k$-GCHNs but focus on simple $\kappa$-CVSs within each \textsl{SSF $\kappa$-CVS} from the $k$-SS-BlockTree, excluding those separated by a $\kappa$-super-separator. The resulting data structures are denoted as $\mathcal{T}_{\text{ss}}^{\kappa}$, $\mathcal{C}_{\text{ss}}^{\kappa}(\mathbf{v})$, and $\mathcal{N}^{\kappa}_{\text{ss}}$, distinguishing them from their counterparts in $k$-GCHNs.
+Notably, some \textsl{SSF $\kappa$-CVSs} may generate identical $\mathbf{v}$. In such cases, the vertex set of $\mathbf{v}$ forms a $\kappa$-super-separator within its parent $\kappa$-block. The set $\mathcal{C}_{\text{ss}}^{\kappa}(\mathbf{v})$ includes all simple $\kappa$-CVSs derived from \textsl{SSF $\kappa$-CVSs} separated by this $\kappa$-super-separator, enabling the modeling of interactions between these sets.
+See Appendix~\ref{sec:data_preprocessing_k_sc_gchns} for details on this data preprocessing procedure.
+
+\noindent \textbf{Message Passing Framework.}
+The message passing in $k$-SS-GCHNs follows the same framework as $k$-GCHNs but uses pruned data structures $\mathcal{T}_{\text{ss}}^{\kappa}$, $\mathcal{C}_{\text{ss}}^{\kappa}(\mathbf{v})$, and $\mathcal{N}^{\kappa}_{\text{ss}}$ within functions \Cref{eq:gchn,eq:gchn_initialization}.
+Accordingly, the representation of $\mathbf{v}$ at layer $l$ of block $\kappa$ is denoted as $\tX^{\kappa,l}_{\text{ss},\mathbf{v}}$.
+
+
+
+\noindent \textbf{Expressivity Analysis.}
+Since the \textsl{super-separator-guided decomposition} is reversible and $k$-SS-GCHNs capture both the internal connectivity of simple $\kappa$-CVSs within each \textsl{SSF $\kappa$-CVS} and their interconnections within the parent $\kappa$-block, the following results hold.
+\begin{theorem}
+    $k$-SS-GCHNs are as powerful as $k$-FWL GNNs in subgraph expressivity.
+\end{theorem}
+Consider an \textsl{SSF $\kappa$-CVS} $S$ generating a $\kappa$-CVS $S'$ with a $\kappa$-super-separator.
+Despite $S \subseteq S'$, simple $\kappa$-CVSs from $S$ may not be a subset of those from $S'$, limiting $k$-SS-GCHNs' subgraph expressivity.
+\begin{theorem}
+    In certain cases, $k$-SS-GCHNs sacrifice subgraph expressivity.
+\end{theorem}
+
+\noindent \textbf{Efficiency.}
+The efficiency of $k$-SS-GCHNs improves upon that of $k$-GCHNs by further reducing the number of message passing operations through super-separator-guided pruning.
+The \textbf{preprocessing complexity} includes all steps from $k$-GCHNs, augmented with the super-separator-guided decomposition. Although this introduces additional overhead, the decomposition algorithms are efficient (e.g., linear time for small $\kappa$), and the primary benefit lies in the reduction of message passing data structure sizes.
+Let $N_{\text{ss},\kappa}$ denote the number of simple $\kappa$-CVSs retained after pruning, which satisfies $N_{\text{ss},\kappa} \leq N_\kappa$, where $N_\kappa$ is the number of simple $\kappa$-CVSs in $k$-GCHNs.
+The \textbf{message passing complexity} per layer is approximately $O(\sum_{\kappa=1}^k N_{\text{ss},\kappa} \cdot d_{\text{ss},\kappa})$, where $d_{\text{ss},\kappa}$ represents the average degree in the pruned message passing graph. Given that $N_{\text{ss},\kappa} \leq N_\kappa$, this results in a more efficient computation compared to $k$-GCHNs.
+The \textbf{memory complexity} is reduced to $O(\sum_{\kappa=1}^k N_{\text{ss},\kappa} \cdot D)$, an improvement over the $O(\sum_{\kappa=1}^k N_\kappa \cdot D)$ memory required by $k$-GCHNs. The actual savings depend on the graph's structure, with significant gains observed in graphs containing numerous super-separators.
+
+\subsection{Diameter-Based Message Pruning for Selected Expressivity}
+\label{sec:diameter-constrained_modeling}
+
+
+While $k$-SS-GCHNs achieve notable efficiency gains through the \textsl{super-separator-guided decomposition}, computational costs may still be high due to the inclusion of simple $\kappa$-CVSs with large diameters. To further improve scalability, we propose a \emph{diameter-based pruning strategy}. It filters out simple $\kappa$-CVSs whose diameters exceed a predefined threshold $\tau_{\kappa}$, thereby focusing computations on localized substructures. Models incorporating this strategy are referred to as \textbf{$k$-DC-GCHNs}.
+
+\noindent \textbf{Data Preprocessing.}
+The data preprocessing for $k$-DC-GCHNs closely follows that of $k$-GCHNs, with one key distinction: in the second step, simple $\kappa$-CVSs with diameters exceeding $\tau_\kappa$ are excluded. The pruned data structures are denoted as $\mathcal{T}_{\text{dc-}\tau}^{\kappa}$, $\mathcal{C}_{\text{dc-}\tau}^{\kappa}(\mathbf{v})$, and $\mathcal{N}^{\kappa}_{\text{dc-}\tau}$, distinguishing them from other methods. Further details are provided in Appendix~\ref{sec:data_preprocessing_k_tau_gchns}.
+
+
+
+\noindent \textbf{Message Passing Framework.}
+The message passing in $k$-DC-GCHNs follows the same framework as $k$-GCHNs but uses pruned data structures $\mathcal{T}_{\text{dc-}\tau}^{\kappa}$, $\mathcal{C}_{\text{dc-}\tau}^{\kappa}(\mathbf{v})$, and $\mathcal{N}^{\kappa}_{\text{dc-}\tau}$ within functions \Cref{eq:gchn,eq:gchn_initialization}.
+Accordingly, the representation of $\mathbf{v}$ at layer $l$ of block $\kappa$ is denoted as $\tX^{\kappa,l}_{\text{dc-}\tau,\mathbf{v}}$.
+
+\noindent \textbf{Expressivity.}
+
+\begin{theorem}
+    $k$-DC-GCHNs can count subgraphs excluding $k$-CVSs and $\kappa$-CVSs with diameters over $\tau$, for any $\kappa \leq k$.
+\end{theorem}
+
+\noindent \textbf{Efficiency.}
+The computational efficiency of $k$-DC-GCHNs builds upon the advancements of $k$-GCHNs while introducing additional optimizations through diameter-based pruning. The \textbf{preprocessing complexity} includes all steps from $k$-GCHNs, augmented with the filtering of simple $\kappa$-CVSs based on their diameters. This step is computationally efficient, as it involves a single pass over the $\kappa$-CVSs to compute and compare their diameters against the threshold $\tau_\kappa$.
+In terms of \textbf{message passing}, the complexity per layer is further reduced compared to $k$-GCHNs. Specifically, the complexity is approximately $O(\sum_{\kappa=1}^k N_{\text{dc},\kappa} \cdot d_{\text{dc},\kappa})$, where $N_{\text{dc},\kappa}$ represents the number of retained $\kappa$-CVSs after diameter-based pruning, and $d_{\text{dc},\kappa}$ denotes the average degree in the pruned message passing graph. Given that $N_{\text{dc},\kappa} \leq N_{\text{ss},\kappa} \leq N_\kappa$, this results in significant computational savings, particularly for graphs with large diameters or sparse localized substructures.
+The \textbf{memory complexity} is also improved, reducing to $O(\sum_{\kappa=1}^k N_{\text{dc},\kappa} \cdot D)$. This reduction is achieved by limiting the storage of intermediate representations to only those $\kappa$-CVSs that satisfy the diameter constraint. The actual memory savings depend on the graph's structure, with substantial gains observed in graphs containing numerous high-diameter $\kappa$-CVSs.
+Overall, $k$-DC-GCHNs achieve a balance between expressivity and efficiency by focusing computations on localized substructures, making them particularly suitable for large-scale graphs with varying structural properties.

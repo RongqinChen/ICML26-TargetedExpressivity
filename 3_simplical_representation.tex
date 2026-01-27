@@ -1,0 +1,90 @@
+\section{Simplicial Representation of Graphs}
+\label{sec:simplical_representation}
+
+Higher-order graph neural networks (GNNs) extend classical message passing by operating on tuples of vertices, enabling them to distinguish substructures—such as cliques or cycles—that are indistinguishable to 1-WL-equivalent GNNs. 
+Yet it remains unclear precisely which higher-order relational patterns these models capture and how their architectures relate to the underlying graph structure.  
+We address this by introducing the \emph{simplicial representation} of a graph $G$: an abstract simplicial complex $\Delta(G)$ built on $V(G)$, where each $d$-simplex ($d \geq 2$) encodes a $(d+1)$-vertex motif exhibiting a cohesive higher-order interaction (e.g., a clique or other dense substructure).  
+Critically, the face--coface relations in $\Delta(G)$ mirror the neighborhood structure among computational units in higher-order GNNs (i.e., tuples of vertices), providing a direct correspondence between topology and message-passing dynamics. 
+This framework lays the groundwork for a systematic analysis of higher-order GNN expressivity and for a comprehensive identification of redundant computations.
+
+In the subsequent subsections, we define which $(d+1)$-vertex motifs should be represented by $d$-simplices in $\Delta(G)$,
+introduce how to construct the simplicial complex $\Delta(G)$ from a graph $G$, and 
+analyze the topological properties of $\Delta(G)$.
+
+
+
+\subsection{$c$-Cohesive Sets}
+To capture robust multi-vertex interconnections that classical connectivity measures (global or pairwise) may miss, we introduce \emph{$c$-cohesive sets}. These sets quantify how resilient a group of vertices remains under deletion while respecting the global graph topology.
+
+\begin{definition}[$c$-Cohesive Set]
+    \label{def:c-cohesive}
+    Let $c \in \mathbb{Z}_{\ge 0}$. A vertex set $S \subseteq V(G)$ is \emph{$c$-cohesive} if:
+    (i) $c = 0$ and $|S| = 1$; or 
+    (ii) $c \ge 1$, $|S| \ge c+1$, and $\kappa_G(u,v) \ge c$ for all distinct $u,v \in S$.
+\end{definition}
+
+By Menger's theorem, $S$ is $c$-cohesive ($c \ge 1$) if and only if all vertices in $S \setminus T$ remain in the same connected component of $G - T$ for any vertex set $T$ with $|T| \le c-1$. 
+
+Crucially, a $c$-cohesive set $S$ need not induce a $c$-connected subgraph, as the $c$ disjoint paths between vertices in $S$ may traverse vertices outside $S$. Cohesiveness thus describes how $S$ is embedded in the global structure of $G$. These sets can also be merged:
+
+\begin{remark}
+    \label{rem:cohesive_properties}
+    Cohesiveness is monotone: if $S$ is $c$-cohesive, it is also $c'$-cohesive for $1 \le c' \le c$. Furthermore, every \emph{minimal} $c$-cohesive set (one with no proper $c$-cohesive subset) has exactly $c+1$ vertices. If $S$ is minimal $c$-cohesive and $T \subseteq S$ has $|T| = c'+1$ ($c' \le c$), then $T$ is minimal $c'$-cohesive.
+\end{remark}
+
+\begin{lemma}[Union Property]
+    \label{lem:union_cohesive}
+    If $S_1, S_2 \subseteq V(G)$ are $c$-cohesive and $|S_1 \cap S_2| \ge c$, then $S_1 \cup S_2$ is $c$-cohesive.
+\end{lemma}
+
+Minimal $c$-cohesive sets thus serve as fundamental building blocks, where larger robust regions are formed by their overlapping unions.
+
+
+\subsection{Cohesive Simplicial Complex}
+
+To organize cohesive sets combinatorially, we introduce the cohesive simplicial complex.
+
+\begin{definition}[Cohesive Simplicial Complex]
+    \label{def:cohesive-complex}
+    The \emph{cohesive simplicial complex} $\Delta(G)$ of a graph $G$ is the abstract simplicial complex with vertex set $V(G)$ whose simplices are exactly all minimal $c$-cohesive sets in $G$ for any $c \ge 0$. To retain the underlying graph structure, each $1$-simplex $\{u,v\} \in \Delta(G)$ carries a binary label indicating whether $uv \in E(G)$.
+\end{definition}
+
+By Remark~\ref{rem:cohesive_properties}, every minimal $c$-cohesive set has size $c+1$, and every subset of size $c'+1$ with $c' \le c$ is a minimal $c'$-cohesive set. Consequently, $\Delta(G)$ is closed under taking non-empty subsets and therefore satisfies the axioms of an abstract simplicial complex. The complex $\Delta(G)$ thus encodes graph structure in a topological object whose nested minimal cohesive sets reveal the multi-scale cohesiveness patterns of $G$.
+
+
+\subsection{Tree Decomposition via Facets}
+
+Based on the combinatorial properties of cohesive sets, we now derive a tree-structured representation of $G$ from $\Delta(G)$. This representation captures the hierarchical organization of cohesive regions and provides a robust framework for graph isomorphism testing and subgraph identification. 
+
+The construction is grounded in the observation that maximal simplices in $\Delta(G)$ interact through specific intersections that function as structural bottlenecks, as formalized below.
+\begin{lemma}[Intersections of Maximal Simplices Are Minimal Separators]
+    \label{lem:intersection-separator}
+    For distinct maximal simplices $\sigma, \varrho$ in $\Delta(G)$, their intersection $\tau := \sigma \cap \varrho$ is a minimal vertex separator of $G$. Moreover, deleting the subcomplex $\langle\tau\rangle$ from $\Delta(G)$ disconnects $\Delta(G)$.
+\end{lemma}
+
+The union property of $c$-cohesive sets (Lemma~\ref{lem:union_cohesive}) and the separator role of maximal simplex intersections (Lemma~\ref{lem:intersection-separator}) together induce a canonical tree structure that organizes cohesive regions into a formal hierarchy, as defined below.
+
+\begin{definition}[Maximal Simplex Network]
+    \label{def:maximal_simplex_network}
+    The \emph{maximal simplex network} of $G$ is a bipartite graph with v classes: maximal simplices of $\Delta(G)$ and their intersections (minimal separators).
+    A maximal simplex connects to a separator if the separator is a proper face of the maximal simplex.
+\end{definition}
+
+The maximal simplex network has the following key properties.
+
+\begin{lemma}
+    \label{lem:maximal_simplex_network_invariant}
+    The maximal simplex network is a graph invariant: isomorphic graphs yield isomorphic maximal simplex networks.
+\end{lemma}
+
+\begin{lemma}
+    \label{lem:maximal_simplex_network_acyclic}
+    The maximal simplex network of a graph $G$ is acyclic; in particular, it is a tree.
+\end{lemma}
+
+\begin{lemma}[Subgraph–Subnetwork Correspondence]
+    \label{lem:subgraph-subnetwork-correspondence}
+    For any connected subgraph $Q \subseteq G$, there exists a connected subcomplex of $\Delta(G)$ consisting of all minimal $c$-cohesive sets contained in $V(Q)$ for any $c \ge 0$, and this subcomplex induces a connected subnetwork of the maximal simplex network.
+\end{lemma}
+
+Hence the maximal simplex network furnishes a tree-structured representation of $G$ that both supports effective graph-isomorphism testing and exposes fine-grained substructural patterns in the graph.

@@ -1,0 +1,24 @@
+\section{Preliminary}
+\paragraph{Notations.}
+We consider only finite, simple, and undirected graphs. For a positive integer $n$, the complete graph on $n$ vertices is denoted by $K_n$.
+
+\paragraph{Graph Connectivity.}
+The \emph{(vertex) connectivity} of a graph $G$, denoted $\kappa(G)$, is the minimum size of a vertex set $S \subseteq V(G)$ whose removal disconnects $G$ or leaves a single vertex; by convention, $\kappa(K_1)=0$. A graph $G$ is \emph{$c$-connected} if $\kappa(G)\ge c$, which implies $|V(G)|>c$ for $c\ge1$. A vertex set $S\subseteq V(G)$ is a \emph{minimal separator} if removing $S$ increases the number of connected components, while no proper subset of $S$ does. For distinct vertices $u,v\in V(G)$, the \emph{pairwise connectivity} $\kappa_G(u,v)$ is the maximum number of internally vertex-disjoint $u$--$v$ paths (an edge $\{u,v\}$ counts as one path when $u$ and $v$ are adjacent). We use the following classical result.
+\begin{theorem}[Menger's theorem (vertex version)]
+    \label{thm:menger}
+    For any two distinct non-adjacent vertices $u,v$ in a graph $G$, $\kappa_G(u,v)$ equals the minimum size of a $u$--$v$ separating set.
+\end{theorem}
+Thus $G$ is $c$-connected if and only if $|V(G)| \ge c+1$ and $\kappa_G(u,v)\ge c$ for every pair of distinct non-adjacent vertices $u,v$; for adjacent pairs this inequality then follows automatically.
+
+\paragraph{Abstract Simplicial Complex.}
+An \emph{abstract simplicial complex} $\Delta$ on a finite vertex set $V$ is a non-empty collection of non-empty subsets of $V$ such that
+if \(\sigma \in \Delta\) and \(\emptyset \neq \tau \subseteq \sigma\), then \(\tau \in \Delta\).
+The elements of $\Delta$ are called \emph{simplices}. 
+For $\sigma \in \Delta$ with $|\sigma| = d+1$, we call $\sigma$ a \emph{$d$-simplex} and set $\dim(\sigma) := d$. 
+The dimension of $\Delta$ is $\dim(\Delta) := \max\{\dim(\sigma) : \sigma \in \Delta\}$.
+If $\tau \subseteq \sigma$ with $\tau, \sigma \in \Delta$, then $\tau$ is a \emph{face} of $\sigma$ and $\sigma$ a \emph{coface} of $\tau$.
+A \emph{facet} of $\Delta$ is a maximal face under inclusion—that is, a simplex not properly contained in any other simplex of $\Delta$.
+The \emph{$d$-skeleton} $\Delta^{(d)}$ is the subcomplex consisting of all simplices in $\Delta$ of dimension at most $d$. 
+In particular, $\Delta^{(0)} = V$ and $\Delta^{(1)}$ is a simple graph on $V$. 
+We say $\Delta$ is \emph{connected} if $\Delta^{(1)}$ is connected as a graph.
+For $\sigma \in \Delta$, denote by $\langle \sigma \rangle := \{\tau \in \Delta : \tau \subseteq \sigma\}$ the subcomplex induced by all simplices of $\sigma$.

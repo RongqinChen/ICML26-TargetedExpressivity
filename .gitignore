@@ -1,0 +1,4 @@
+output
+*.bkp
+*.log
+.DS_Store

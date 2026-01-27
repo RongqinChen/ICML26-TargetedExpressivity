@@ -1,0 +1,122 @@
+\subsection{Table of Notation}
+\label{sec:notation_table}
+
+\begin{longtable}{|c|c|}
+\hline
+\multicolumn{2}{|c|}{\textbf{General Notations}} \\
+\hline
+\textbf{Symbol} & \textbf{Description} \\
+\hline
+\endfirsthead
+\hline
+\multicolumn{2}{|c|}{\textbf{Notations (continued)}} \\
+\hline
+\textbf{Symbol} & \textbf{Description} \\
+\hline
+\endhead
+\hline
+\multicolumn{2}{r}{\textit{Continued on next page}} \\
+\endfoot
+\hline
+\endlastfoot
+$G$ & graphs \\
+\hline
+$v$, $u$, $t$ & vertices \\
+\hline
+$V(G)$ and $\gE(G)$ & vertex set and edge set of $G$ \\
+\hline
+$x_v$ & attribute of vertex $v$ \\
+\hline
+$e_{uv}$ & attribute of edge $\{u, v\}$ \\
+\hline
+$\mathcal{O}(n)$ & complexity notation \\
+\hline
+$S$, $T$ & sets of vertices \\
+\hline
+$|S|$ & cardinality of set $S$ \\
+\hline
+$N = |V(G)|$ & number of vertices in $G$ \\
+\hline
+$M = |E(G)|$ & number of edges in $G$ \\
+\hline
+$\mathcal{N}(v)$ & neighboring vertices of $v$ \\
+\hline
+$\pi$ & graph isomorphism \\
+\hline
+$G[S]$ & subgraph induced by $S$ \\
+\hline
+$Q$ & query graph pattern \\
+\hline
+$\varepsilon$ & subgraph isomorphism \\
+\hline
+$\aleph(v,Q)$ & count of subgraphs $Q$ containing $v$ \\
+\hline
+\multicolumn{2}{|c|}{\textbf{GNN Notations}} \\
+\hline
+\textbf{Symbol} & \textbf{Description} \\
+\hline
+$\multiset{\cdot}$ & multiset (set allowing duplicates) \\
+\hline
+$\bigoplus$ & permutation-invariant aggregator \\
+\hline
+$\varPhi^{(l)}$ & update function at layer $l$ \\
+\hline
+$\mX^{(l)}_{v}$ & representation of $v$ at layer $l$ in MPNNs \\
+\hline
+$\vv {=} (v_1,v_2, \ldots)$ & tuple of vertices \\
+\hline
+$\vv_{t/i}$ & substitution in $\vv$ at position $i$ \\
+\hline
+$\vv \circ t$ & concatenation of $\vv$ with $t$ \\
+\hline
+$\varPsi^{k,l}$ & message computation function \\
+\hline
+$\mX^{k,l}_{\vv}$ & representation of $\vv$ at layer $l$ in $k$-FWL GNNs\\
+\hline
+$\mH^{k,l}_{\vv\circ t}$ & intermediate message for extended tuple \\
+\hline
+$\varTheta^{(k)}_{\text{v}}$ & vertex prediction head in MPNNs \\
+\hline
+$\varTheta_{\text{e}}$ & edge prediction head in MPNNs \\
+\hline
+$\mZ_{u,v}$ & edge representation in MPNNs \\
+\hline
+$\varTheta_{\text{g}}$ & graph prediction head in MPNNs \\
+\hline
+$\mZ_{G}$ & graph representation in MPNNs \\
+\hline
+$\mZ^{(k)}_{v}$ & vertex representation in $k$-FWL GNNs\\
+\hline
+$\varTheta^{(k)}_{\text{e}}$ & edge prediction head in $k$-FWL GNNs \\
+\hline
+$\mZ^{(k)}_{u,v}$ & edge representation in $k$-FWL GNNs\\
+\hline
+$\varTheta^{(k)}_{\text{g}}$ & graph prediction head in $k$-FWL GNNs\\
+\hline
+$\mZ_{G}^{(k)}$ & graph representation in $k$-FWL GNNs\\
+\hline
+$\mathcal{T}_v$ & WL subtree rooted at $v$ \\
+\hline
+$\mathcal{F}^{k}_{\vv}$ & $k$-FWL subtree rooted at $\vv$ \\
+\hline
+\multicolumn{2}{|c|}{\textbf{Connectivity Notations}} \\
+\hline
+\textbf{Symbol} & \textbf{Description} \\
+\hline
+$\kappa_G(u, v)$ & local connectivity of $u$ and $v$ in $G$ \\
+\hline
+$\mathcal{K}(G)$ & global connectivity of $G$ \\
+\hline
+\multicolumn{2}{|c|}{\textbf{Simplicial Notation}} \\
+\hline
+\textbf{Symbol} & \textbf{Description} \\
+\hline
+$\sigma$, $\varrho$, $\tau$ & simplexes \\
+\hline
+$\vv^*$ & distinct-tuple with first occurrences \\
+\hline
+$\gK(G)$ & abstract simplicial complex of $G$ \\
+\hline
+$\mathcal{S}^{k}_{\sigma}$ & $k$-simplicial tree rooted at $\sigma$ \\
+\hline
+\end{longtable}
