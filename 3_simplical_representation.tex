@@ -32,20 +32,58 @@ They can aggregate into larger cohesive regions through overlap:
 \end{lemma}
 
 \subsection{The Cohesive Simplicial Complex}
-We integrate all minimal cohesive sets into a single combinatorial-topological object.
+We now formalize the aggregation of all minimal cohesive sets into a unified combinatorial-topological structure.
+
 \begin{definition}[Cohesive Simplicial Complex]
     \label{def:cohesive-complex}
-    The \emph{cohesive simplicial complex} $\Delta(G)$ is the abstract simplicial complex whose 
-    simplices are all non-empty subsets of $V(G)$ that are \emph{minimal $c$-cohesive} for some $c \ge 0$.
+    The \emph{cohesive simplicial complex} $\Delta(G)$ of a graph $G$ is the abstract simplicial complex defined by
+    \begin{align*}
+        \Delta(G)
+            &= \bigl\{\sigma \subseteq V(G) : \sigma \neq \emptyset \text{ and } \sigma \text{ is minimal $c$-cohesive} \\
+            &\qquad\text{for some } c \ge 0\bigr\},
+    \end{align*}
+    where a simplex $\sigma \in \Delta(G)$ is included along with all its non-empty subsets.
 \end{definition}
-Closure under taking subsets follows from the monotonicity and downward-closure properties, satisfying the axioms of an abstract simplicial complex.
-The original graph is preserved by labeling each $1$-simplex $\{u,v\}$ with $\ell(\{u,v\}) = \mathbb{1}[(u,v) \in E(G)]$.
 
-For a simplex $\sigma$, its dimension $\dim(\sigma)=|\sigma|-1$ equals its cohesion level $c$. The union of overlapping simplices represents a larger cohesive region whose cohesion level is determined by the minimum size of their pairwise intersections.
-Thus $\Delta(G)$ provides a multi-scale topological representation: its $1$-skeleton retains local adjacency, while each higher-dimensional simplex ($\dim \ge 2$) encodes a globally robust, multi-vertex interaction pattern invisible to standard GNNs.
+\begin{remark}
+    The closure property required for an abstract simplicial complex follows immediately from the monotonicity and downward-closure of $c$-cohesiveness (cf.\ Section~\ref{def:c-cohesive}): if $\sigma$ is minimal $c$-cohesive, then every non-empty subset $\tau \subseteq \sigma$ is minimal $c'$-cohesive for some $c' \le c$.
+\end{remark}
 
-\subsection{Graph Invariants via Cohesive Simplicial Complex}
+To preserve the original graph structure, we equip $\Delta(G)$ with an edge-indicator labeling on any $1$-simplex $\{u,v\}$:
+\[
+    \ell_G(\{u,v\}) = \mathds{1}[(u,v) \in E(G)].
+\]
 
-Any connected graph admits a canonical decomposition into a tree of $2$-connected components, known as its \emph{block–cut tree}. 
-Each node of this tree is either a \emph{block} (a maximal $2$-connected subgraph, a bridge (or an edge connecting two vertices), or an isolated vertex) or a \emph{cut vertex} (also called an articulation point), and edges encode incidences between blocks and cut vertices. 
-A cut vertex is a vertex whose removal strictly increases the number of connected components.
+\paragraph{Geometric and Topological Interpretation.}
+For a simplex $\sigma \in \Delta(G)$, its dimension satisfies $\dim(\sigma) = |\sigma| - 1 = c$, where $c$ is the cohesion level of $\sigma$.
+By Lemma~\ref{lem:union_cohesive}, the union of overlapping simplices $\sigma_1, \sigma_2$ with $|\sigma_1 \cap \sigma_2| \ge c$ forms a larger $c$-cohesive region.
+Consequently, $\Delta(G)$ encodes a multi-scale filtration of connectivity: the $1$-skeleton $\Delta^{(1)}(G)$ captures pairwise adjacency, while each higher-dimensional simplex ($\dim \ge 2$) represents a globally robust interaction pattern sustained by multiple vertex-disjoint paths---structural motifs that are inherently invisible to message-passing GNNs operating solely on the $1$-skeleton.
+
+\paragraph{Graph Isomorphism and Expressivity.}
+The transformation $G \mapsto (\Delta(G), \ell_G)$ is information-preserving in the sense that it establishes a bijective correspondence between graph isomorphism classes and labeled simplicial complex isomorphism classes. This reversibility is formalized below.
+
+\begin{proposition}[Isomorphism Equivalence]
+    \label{prop:iso-equivalence}
+    Let $G$ and $H$ be graphs, and denote by $\Delta(G), \Delta(H)$ their cohesive simplicial complexes equipped with edge-indicator labelings $\ell_G, \ell_H$ on $1$-simplices. Then
+    \[
+        G \cong H \quad \Longleftrightarrow \quad (\Delta(G), \ell_G) \cong (\Delta(H), \ell_H).
+    \]
+\end{proposition}
+
+\begin{corollary}[Expressivity Criterion]
+    \label{cor:expressivity-criterion}
+    A GNN can distinguish non-isomorphic graphs $G \not\cong H$ if it can distinguish the corresponding labeled simplicial complexes $(\Delta(G), \ell_G) \not\cong (\Delta(H), \ell_H)$ by learning to:
+    \begin{enumerate}[label=(\roman*),nosep]
+        \item differentiate simplices embedded in distinct local neighborhoods, and
+        \item propagate information about the edge labels between simplices across the complex.
+    \end{enumerate}
+\end{corollary}
+
+This result underscores that extending message-passing from edges to higher-dimensional simplices is sufficient for capturing the higher-order structural patterns encoded by $\Delta(G)$.
+
+Note that this criterion is neither unique nor optimal: a GNN may distinguish certain non-isomorphic graphs without satisfying it. 
+Nevertheless, it is still crucial for understanding GNN expressivity for several reasons:
+(i) it closely aligns with the message-passing paradigms of $k$-WL/$k$-FWL GNNs, enabling a proof of their complete expressivity on graphs with bounded cohesion;
+(ii) it provides a principled way to construct counterexamples where specific GNN architectures fail to distinguish non-isomorphic graphs;
+(iii) it forms a foundation for identifying redundant computations in GNNs and designing more efficient algorithms; and
+(iv) it offers a framework to compare the expressivity of Local $k$-FGNNs with other GNN models, addressing an open problem raised in~\cite{zhang2024beyond}.

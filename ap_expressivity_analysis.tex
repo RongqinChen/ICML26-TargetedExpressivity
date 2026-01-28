@@ -25,65 +25,36 @@ Proof of Lemma~\ref{lem:union_cohesive}:
 \end{proof}
 
 
-Proof of Lemma~\ref{lem:intersection-separator}:
 \begin{proof}
-    Since $\sigma$ and $\varrho$ are maximal in $\Delta(G)$, they are minimal $c$-cohesive sets for some integers $c_\sigma, c_\varrho \geq 1$, respectively. By Remark~\ref{rem:cohesive_monotonicity}, any non-empty face of a $c$-cohesive set is itself $c'$-cohesive for some $c' \leq c$; in particular, $\tau$ is non-empty (otherwise $\sigma \cup \varrho$ would be cohesive by Lemma~\ref{lem:union_cohesive}, contradicting maximality).
+    \noindent($\Rightarrow$) 
+    Assume $\varphi\colon V(G) \to V(H)$ is a graph isomorphism. 
+    For any distinct $u,v \in V(G)$, the bijection $\varphi$ induces a one-to-one correspondence between vertex-disjoint $(u,v)$-paths in $G$ and vertex-disjoint $(\varphi(u),\varphi(v))$-paths in $H$. 
+    By Menger's theorem, $\kappa_G(u,v) = \kappa_H(\varphi(u),\varphi(v))$.
+    It follows that for any $S \subseteq V(G)$,
+    \[
+        S \text{ is (minimal) $c$-cohesive in } G \quad \Longleftrightarrow \quad \varphi(S) \text{ is (minimal) $c$-cohesive in } H.
+    \]
+    Hence $\varphi$ extends to a simplicial isomorphism $\Delta(G) \to \Delta(H)$. 
+    Moreover, since $\varphi$ preserves adjacency, we have
+    \[
+        \ell_G(\{u,v\}) = \mathbb{1}[(u,v) \in E(G)] = \mathbb{1}[(\varphi(u),\varphi(v)) \in E(H)] = \ell_H(\{\varphi(u),\varphi(v)\}),
+    \]
+    yielding an isomorphism of labeled complexes $(\Delta(G),\ell_G) \cong (\Delta(H),\ell_H)$.
 
-    Suppose, for contradiction, that there exists a path $P$ in $G$ from a vertex $u \in \sigma \setminus \tau$ to a vertex $v \in \varrho \setminus \tau$ that avoids $\tau$. Let $c = |\tau| - 1$. Because $\sigma$ is a minimal $c_\sigma$-cohesive set, we have $|\sigma| = c_\sigma + 1$, and similarly $|\varrho| = c_\varrho + 1$. Moreover, since $\tau \subsetneq \sigma$ and $\tau \subsetneq \varrho$, it follows that $|\tau| \leq \min\{c_\sigma, c_\varrho\}$.
-
-    The existence of $P$ together with the $c_\sigma$- and $c_\varrho$-cohesiveness of $\sigma$ and $\varrho$ implies that every pair of vertices in $\sigma \cup \varrho$ is linked by at least $\min\{c_\sigma, c_\varrho\}$ internally vertex-disjoint paths. In particular, if $|\tau| = \min\{c_\sigma, c_\varrho\}$, then $\sigma \cup \varrho$ satisfies the definition of a $\min\{c_\sigma, c_\varrho\}$-cohesive set. This contradicts the maximality of $\sigma$ and $\varrho$ in $\Delta(G)$, as their union would contain a larger cohesive set.
-
-    Hence, no such path $P$ exists, and $\tau$ separates $\sigma \setminus \tau$ from $\varrho \setminus \tau$.
-
-    To establish minimality, let $R \subsetneq \tau$. Since $\sigma$ is cohesive, every vertex in $\sigma \setminus \tau$ remains connected to every vertex in $\tau \setminus R$ in $G - R$; an analogous statement holds for $\varrho$. Because $\tau \setminus R \neq \emptyset$, there exists a vertex $t \in \tau \setminus R$ that connects $\sigma \setminus \tau$ to $\varrho \setminus \tau$ in $G - R$. Thus, $R$ does not separate the two sides, proving that $\tau$ is a \emph{minimal} vertex separator.
-\end{proof}
-
-Proof of Lemma~\ref{lem:maximal_simplex_network_invariant}:
-\begin{proof}
-    Let $G$ and $H$ be isomorphic graphs with isomorphism $\pi: V(G) \to V(H)$. 
-    We show that the maximal simplex networks of $G$ and $H$ are isomorphic.
-    
-    First, observe that $\pi$ preserves the cohesive structure: a set $S \subseteq V(G)$ is $c$-cohesive in $G$ iff $\pi(S) \subseteq V(H)$ is $c$-cohesive in $H$. 
-    This follows since $\kappa_G(u,v) = \kappa_H(\pi(u),\pi(v))$ for all $u,v \in V(G)$.
-    
-    Consequently, $\pi$ maps minimal $c$-cohesive sets in $G$ to minimal $c$-cohesive sets in $H$, preserving the simplicial complex structure. 
-    In particular, maximal simplices in $\Delta(G)$ correspond bijectively to maximal simplices in $\Delta(H)$ under $\pi$.
-    
-    Similarly, minimal separators in $G$ correspond to minimal separators in $H$: if $S$ separates vertices $u,v$ in $G$, then $\pi(S)$ separates $\pi(u),\pi(v)$ in $H$, and $S$ is minimal iff $\pi(S)$ is minimal.
-    
-    The incidence relations are preserved: if maximal simplices $\sigma,\varrho$ in $\Delta(G)$ intersect in separator $\tau$, then the corresponding maximal simplices $\pi(\sigma),\pi(\varrho)$ in $\Delta(H)$ intersect in separator $\pi(\tau)$. 
-    
-    Therefore, $\pi$ induces an isomorphism between the maximal simplex networks of $G$ and $H$.
-\end{proof}
-
-Proof of Lemma~\ref{lem:maximal_simplex_network_acyclic}:
-\begin{proof}
-    Removing any separator disconnects graph $G$. Thus removing any separator node disconnects the maximal simplex network.
-    Removing any maximal simplex would also remove separators contained in it. Thus removing any simplex node disconnects the maximal simplex network.
-    Consequently, the maximal simplex network is acyclic.
-\end{proof}
-
-
-Proof of Lemma~\ref{lem:subgraph-subnetwork-correspondence}:
-\begin{proof}
-Let $Q \subseteq G$ be a connected subgraph. Define $\Delta_Q(G)$ as the subcomplex of $\Delta(G)$ consisting of all minimal $c$-cohesive sets $\sigma$ such that $\sigma \subseteq V(Q)$ for some $c \geq 0$.
-
-\noindent\textbf{Step 1: $\Delta_Q(G)$ is a well-defined subcomplex.} 
-Since every minimal $c$-cohesive set in $\Delta_Q(G)$ is contained in $V(Q)$ and belongs to $\Delta(G)$, we verify the subcomplex property: for any $\sigma \in \Delta_Q(G)$ and any non-empty subset $\tau \subseteq \sigma$, we have $\tau \subseteq V(Q)$ and $\tau \in \Delta(G)$ by the hereditary property of abstract simplicial complexes. Therefore, $\tau \in \Delta_Q(G)$, confirming that $\Delta_Q(G)$ is closed under taking non-empty subsets.
-
-\noindent\textbf{Step 2: $\Delta_Q(G)$ is connected.}
-Let $\sigma_1, \sigma_2 \in \Delta_Q(G)$ be arbitrary minimal cohesive sets. Since $Q$ is connected, there exists a path $P$ in $Q$ connecting some vertex $u \in \sigma_1$ to some vertex $v \in \sigma_2$. 
-
-We construct a sequence of minimal cohesive sets connecting $\sigma_1$ to $\sigma_2$ as follows: traversing $P$ from $u$ to $v$, let $w_0 = u, w_1, \ldots, w_\ell = v$ be the vertices of $P$ in order. For each consecutive pair $w_i, w_{i+1}$ on $P$, there exists a minimal $c$-cohesive set $\tau_i$ containing both vertices (since $w_i$ and $w_{i+1}$ are connected in $Q$ and hence belong to some common cohesive structure). 
-
-Starting with $\tau_0 = \sigma_1$, we can find a sequence $\tau_0, \tau_1, \ldots, \tau_k$ where $\tau_k = \sigma_2$ and $\tau_i \cap \tau_{i+1} \neq \emptyset$ for all $i$. This sequence demonstrates path-connectedness in the 1-skeleton of $\Delta_Q(G)$, establishing connectivity of the subcomplex.
-
-\noindent\textbf{Step 3: Subnetwork correspondence.}
-In the maximal simplex network of $G$, each maximal simplex node represents a maximal simplex from $\Delta(G)$, and separator nodes represent minimal separators formed by intersections of maximal simplices.
-
-The subcomplex $\Delta_Q(G)$ corresponds to the subset of maximal simplices from $\Delta(G)$ that are entirely contained in $V(Q)$. By Definition~\ref{def:maximal_simplex_network}, these maximal simplices become nodes in the induced subnetwork, while their pairwise intersections that lie within $V(Q)$ become the separator nodes connecting them.
-
-The connectivity preservation follows from two key observations: (i) any two maximal simplices in $\Delta_Q(G)$ that intersect do so in a minimal separator within $V(Q)$, creating an edge in the subnetwork; (ii) the connectivity of $Q$ ensures that for any partition of $V(Q)$ by a minimal separator, the remaining components remain connected within $Q$. Therefore, the induced subnetwork maintains the same connectivity structure as $\Delta_Q(G)$.
-
-Consequently, $\Delta_Q(G)$ forms a connected subcomplex whose structure is faithfully represented by a connected subnetwork of the maximal simplex network.
+    \noindent($\Leftarrow$) 
+    Conversely, suppose $\psi\colon V(G) \to V(H)$ is an isomorphism of labeled simplicial complexes $(\Delta(G),\ell_G) \cong (\Delta(H),\ell_H)$.
+    Then $\psi$ is a vertex bijection preserving all simplices and satisfying
+    \[
+        \ell_G(\{u,v\}) = \ell_H(\{\psi(u),\psi(v)\}) \quad \forall u,v \in V(G), u \neq v.
+    \]
+    The edge set of $G$ can be recovered as
+    \[
+        E(G) = \bigl\{\{u,v\} : \ell_G(\{u,v\}) = 1\bigr\},
+    \]
+    and analogously for $H$.
+    Therefore,
+    \[
+        \{u,v\} \in E(G) \quad \Longleftrightarrow \quad \ell_G(\{u,v\}) = 1 \quad \Longleftrightarrow \quad \ell_H(\{\psi(u),\psi(v)\}) = 1 \quad \Longleftrightarrow \quad \{\psi(u),\psi(v)\} \in E(H),
+    \]
+    so $\psi$ is a graph isomorphism $G \cong H$.
 \end{proof}
