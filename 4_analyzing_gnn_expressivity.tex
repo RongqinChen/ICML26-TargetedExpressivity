@@ -125,38 +125,38 @@ Based on the classification, we define simplicial $k$-trees as an abstraction of
     Two $k$-tuples receive distinct $k$-WL representations iff their corresponding simplicial $k$-trees are non-isomorphic. Consequently, two graphs are distinguishable by $k$-WL iff they induce distinct sets of simplicial $k$-trees.
 \end{lemma}
 
-\subsection{Complete Expressivity of $k$-WL GNNs on Graphs without $k$-Cohesive Sets}
+% \subsection{Complete Expressivity of $k$-WL GNNs on Graphs without $k$-Cohesive Sets}
 
-Let $\mathcal{G}_{k}$ denote the class of graphs that do not contain any $k$-cohesive sets. We establish that $k$-WL GIN achieves complete expressivity over $\mathcal{G}_{k}$ with respect to both graph isomorphism discrimination and subgraph counting. This expressivity is formalized in the following two theorems.
+% Let $\mathcal{G}_{k}$ denote the class of graphs that do not contain any $k$-cohesive sets. We establish that $k$-WL GIN achieves complete expressivity over $\mathcal{G}_{k}$ with respect to both graph isomorphism discrimination and subgraph counting. This expressivity is formalized in the following two theorems.
 
-\begin{theorem}[Isomorphism Discrimination]
-\label{thm:isomorphism-discrimination}
-Let $G_1, G_2 \in \mathcal{G}_{k}$. If $G_1 \not\cong G_2$, then there exists a $k$-WL GIN that distinguishes $G_1$ from $G_2$.
-\end{theorem}
+% \begin{theorem}[Isomorphism Discrimination]
+% \label{thm:isomorphism-discrimination}
+% Let $G_1, G_2 \in \mathcal{G}_{k}$. If $G_1 \not\cong G_2$, then there exists a $k$-WL GIN that distinguishes $G_1$ from $G_2$.
+% \end{theorem}
 
-\begin{theorem}[Subgraph Counting Expressivity]
-\label{thm:subgraph-expressivity}
-For any pattern graph $Q$, any graph $G \in \mathcal{G}_{k}$, and any vertex $v \in V(G)$, there exists a $k$-WL GIN that computes a vertex representation $\mathbf{z}^{k}_{v}$ from which the local subgraph count can be uniquely determined. Formally, there exists a function $f: \mathbb{R}^d \to \mathbb{N}$ such that 
-\[
-f(\mathbf{z}^{k}_{v}) = \mathrm{iso}(Q, G, v),
-\]
-where $\mathrm{iso}(Q, G, v)$ denotes the number of subgraphs of $G$ isomorphic to $Q$ that contain vertex $v$.
-\end{theorem}
+% \begin{theorem}[Subgraph Counting Expressivity]
+% \label{thm:subgraph-expressivity}
+% For any pattern graph $Q$, any graph $G \in \mathcal{G}_{k}$, and any vertex $v \in V(G)$, there exists a $k$-WL GIN that computes a vertex representation $\mathbf{z}^{k}_{v}$ from which the local subgraph count can be uniquely determined. Formally, there exists a function $f: \mathbb{R}^d \to \mathbb{N}$ such that 
+% \[
+% f(\mathbf{z}^{k}_{v}) = \mathrm{iso}(Q, G, v),
+% \]
+% where $\mathrm{iso}(Q, G, v)$ denotes the number of subgraphs of $G$ isomorphic to $Q$ that contain vertex $v$.
+% \end{theorem}
 
-The proofs of these theorems rely on the following structural correspondence lemma.
+% The proofs of these theorems rely on the following structural correspondence lemma.
 
-\begin{lemma}[Bijection between Maximal Simplex Networks and Simplicial $k$-Trees]
-\label{lem:maximal-simplex-network-simplicial-k-trees}
-Let $G \in \mathcal{G}_{k}$. Then there exists a bijection between the maximal simplex networks of $G$ and its simplicial $k$-tree set. More precisely:
-Given the maximal simplex network of $G$, one can uniquely construct the simplicial $k$-tree set of $G$.
-Conversely, given the simplicial $k$-tree set of $G$, one can uniquely construct its maximal simplex network.
-\end{lemma}
+% \begin{lemma}[Bijection between Maximal Simplex Networks and Simplicial $k$-Trees]
+% \label{lem:maximal-simplex-network-simplicial-k-trees}
+% Let $G \in \mathcal{G}_{k}$. Then there exists a bijection between the maximal simplex networks of $G$ and its simplicial $k$-tree set. More precisely:
+% Given the maximal simplex network of $G$, one can uniquely construct the simplicial $k$-tree set of $G$.
+% Conversely, given the simplicial $k$-tree set of $G$, one can uniquely construct its maximal simplex network.
+% \end{lemma}
 
-As a result, we have
-\begin{corollary}
-    For two graphs $G_1, G_2 \in \mathcal{G}_{k}$, if $G_1 \not\cong G_2$, then their simplicial $k$-tree sets are different.
-\end{corollary}
+% As a result, we have
+% \begin{corollary}
+%     For two graphs $G_1, G_2 \in \mathcal{G}_{k}$, if $G_1 \not\cong G_2$, then their simplicial $k$-tree sets are different.
+% \end{corollary}
 
-\subsection{Bottleneck: Fundamental Expressivity Limits from $k$-Cohesive Sets}
+% \subsection{Bottleneck: Fundamental Expressivity Limits from $k$-Cohesive Sets}
 
-We prove this by constructing a family of graphs that all have the same simplicial $k$-tree set, but different $k$-cohesive sets.
+% We prove this by constructing a family of graphs that all have the same simplicial $k$-tree set, but different $k$-cohesive sets.

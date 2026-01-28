@@ -15,7 +15,9 @@ We formalize tightly connected vertex subsets extending the notion of local conn
 
 By Menger's theorem, condition (2) requires that every vertex pair in $S$ remains mutually reachable after removing any $c-1$ vertices from $G$. The vertex-disjoint paths witnessing this robustness may traverse vertices outside $S$; thus, $c$-cohesiveness depends on the global embedding of $S$ in $G$, not solely on the induced subgraph $G[S]$.
 
-A $c$-cohesive set is (inclusion-wise) \emph{minimal} if no proper non-empty subset is $c$-cohesive. Definition~\ref{def:c-cohesive} implies: (i) cohesiveness is monotone—if $S$ is $c$-cohesive, then $S$ is $c'$-cohesive for all $c' \le c$; (ii) any minimal $c$-cohesive set has exactly $c+1$ vertices; (iii) every $(c'{+}1)$-subset of such a minimal set is minimal $c'$-cohesive for some $c' < c$.
+A $c$-cohesive set is \emph{maximal} if adding any vertex violates $c$-cohesiveness; such sets are called \emph{$c$-blocks}.
+A $c$-cohesive set is (inclusion-wise) \emph{minimal} if no proper non-empty subset is $c$-cohesive. 
+Definition~\ref{def:c-cohesive} implies: (i) cohesiveness is monotone—if $S$ is $c$-cohesive, then $S$ is $c'$-cohesive for all $c' \le c$; (ii) any minimal $c$-cohesive set has exactly $c+1$ vertices; (iii) every $(c'{+}1)$-subset of such a minimal set is minimal $c'$-cohesive for some $c' < c$.
 
 Minimal cohesive sets thus serve as atomic motifs of structural resilience, while larger cohesive regions assemble from their overlaps via the following property.
 
@@ -39,6 +41,8 @@ A key property is the structure of its $1$-skeleton. Since any two vertices $u,v
 This construction yields a multi-scale topological representation of $G$ in which higher-dimensional simplices encode dense, resilient interaction patterns invisible to standard message-passing GNNs operating solely on $E(G)$.
 
 \subsection{Graph Decomposition via Cohesiveness}
+
+We first introduce the $k$-block decomposition of a graph.
 
 % We show that facets admit a reversible decomposition of the cohesive simplicial complex into a tree-like structure.
 % This is based on the below observations.
