@@ -37,3 +37,23 @@ Closure under non-empty subsets follows from monotonicity of cohesiveness, satis
 A key property is the structure of its $1$-skeleton. Since any two vertices $u,v$ in the same connected component of $G$ satisfy $\kappa_G(u,v) \ge 1$, they form a $1$-cohesive set. Consequently, $\Delta(G)^{(1)}$ is a complete graph on each connected component of $G$. To preserve the original adjacency structure, we annotate each $1$-simplex $\{u,v\}$ with binary label $\ell(\{u,v\}) = \mathds{1}[(u,v) \in E(G)]$.
 
 This construction yields a multi-scale topological representation of $G$ in which higher-dimensional simplices encode dense, resilient interaction patterns invisible to standard message-passing GNNs operating solely on $E(G)$.
+
+\subsection{Graph Decomposition via Cohesiveness}
+
+% We show that facets admit a reversible decomposition of the cohesive simplicial complex into a tree-like structure.
+% This is based on the below observations.
+
+% \begin{lemma}
+%     Let $G$ be a connected graph that is not complete. Suppose $G$ contains at least one $c$-cohesive set, but no $(c+1)$-cohesive set. 
+%     Then there exists a minimal separator $S \subseteq V(G)$ with $|S| \le c$.
+% \end{lemma}
+
+% \begin{proof}
+%     Since $G$ is connected, not complete, and contains no $(c+1)$-cohesive set, we claim that the vertex connectivity $\kappa(G)$ satisfies $\kappa(G) \le c$. 
+
+%     Suppose, for contradiction, that $\kappa(G) \ge c+1$. Then, by definition of vertex connectivity, the removal of any set of at most $c$ vertices leaves $G$ connected. In particular, for any two distinct vertices $u, v \in V(G)$, there exist at least $c+1$ internally vertex-disjoint $u$--$v$ paths (by Menger’s Theorem). Hence $\kappa_G(u,v) \ge c+1$ for all distinct $u,v \in V(G)$. 
+
+%     Since $G$ is not complete, $|V(G)| \ge 3$, and because it is connected with $\kappa(G) \ge c+1$, we must have $|V(G)| \ge c+2$ (as a $(c+1)$-connected graph has at least $c+2$ vertices). Therefore, $V(G)$ itself is a $(c+1)$-cohesive set—contradicting the assumption that no such set exists.
+
+%     Thus $\kappa(G) \le c$. By definition of vertex connectivity, there exists a separator of size $\kappa(G) \le c$. Among all such separators, choose one that is inclusion-wise minimal; this is a minimal separator $S$ with $|S| \le c$, as required.
+% \end{proof}

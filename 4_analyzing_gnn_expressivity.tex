@@ -1,4 +1,45 @@
-\section{Analyzing GNN Expressivity}
+\section{Reinterpreting $k$-FWL GNNs via Simplicial Complexes}
+
+\subsection{From Graphs to Simplicial Complexes}
+The $k$-WL update rule (Equation~\ref{eq:kwl_gnns}) operates uniformly over all $k$-tuples, embedding the input graph $G$ into a labeled complete graph $K_G$ (Figure~\ref{fig:link_fwl_simplex}).c
+This yields a \textit{labeled simplicial complex} $\gK(G)$, where each subset of $d+1$ distinct vertices forms a $d$-simplex.
+
+Mapping all $k$-tuples with identical vertex sets to a single simplex shows that these tuples collectively span the $(k{-}1)$-skeleton $\gK(G)^{(k{-}1)}$. 
+Thus, message-passing operates over the $(k{-}1)$-skeleton, with each $k$-tuple representing a simplex of dimension up to $k{-}1$.
+This simplicial view exposes two topological operations in Equation~\ref{eq:kwl_gnns}: \textit{coface aggregation} and \textit{face Combination}.
+
+\begin{figure}[tb]
+    \centering
+    \includegraphics[width=1.0\columnwidth]{figures/link_kfwl_simplex.pdf}
+    \caption{\label{fig:link_fwl_simplex}
+        \textbf{Simplicial Operations included in 3-WL Message Passing.}
+        \textbf{(a)} \textit{Simplicial completion:} The input graph is extended to a complete graph by inserting auxiliary edges (dotted), ensuring that every subset of $d{+}1$ vertices forms a $d$-simplex for $d = 0,1,2$.
+        \textbf{(b)} \textit{coface Aggregation:} For $\vv=(1,2)$ forming the 1-simplex $\{1,2\}$, each $t \in V \setminus \vv$ yields the extended tuple $(1,2,t)$ corresponding to a 2-simplex $\{1,2,t\}$ (a cofacet of $\{1,2\}$). Similarly, for $\vv=(1,1)$ forming the 0-simplex $\{1\}$, each $t \in V \setminus \vv$ yields the extended tuple $(1,1,t)$ corresponding to a 1-simplex $\{1,t\}$ (a cofacet of $\{1\}$).
+        \textbf{(c)} \textit{Ordered Facet Combination:} The output tuple corresponds to a $d$-simplex while the input tuples correspond to facets of the $d$-simplex (after removing repeated vertices when they exist). For example, if $\vv=(1,2)$ and $t=3$, the output tuple corresponds to 2-simplex $\{1,2,3\}$, while the input tuples correspond to $\{1,2\}$, $\{2,3\}$, and $\{3,1\}$, respectively. If $\vv=(1,1)$ and $t=2$, after removing repeated vertices, the output tuple corresponds to 1-simplex $\{1,2\}$, while the input tuples correspond to $\{1\}$, $\{2\}$, and $\{2\}$.
+    }
+\end{figure}
+
+\paragraph{Coface Aggregation.}
+The aggregation function $\oplus$ in Equation~\ref{eq:kwl_gnns} computes $\mH^{k,l}_{\vv_{/i}}$ by pooling messages from all tuples $\vv_{t/i}$ with $t \in V(G)$. 
+The tuple $\vv_{/i}$ is a $(k{-}1)$-tuple containing at most $k{-}1$ distinct vertices; let $\tau$ denote the $d$-simplex ($d \le k{-}2$) represented by $\vv_{/i}$. 
+If $t \notin \vv_{/i}$, then $\vv_{t/i}$ corresponds to the $(d{+}1)$-simplex $\sigma := \tau \cup \{t\}$, which is an immediate cofacet of $\tau$. 
+As $t$ varies over $V(G) \setminus \vv_{/i}$, the aggregation thus systematically pools messages from all immediate cofaces of $\tau$, capturing how $\tau$ is embedded into higher-dimensional simplices (Figure~\ref{fig:link_fwl_simplex}(b)). 
+If $t \in \vv_{/i}$, then $\vv_{t/i}$ represents the same simplex $\tau$, so these terms correspond to self-messages and require no special topological treatment.
+
+\paragraph{Face Combination.}
+The update function $\Psi^{k,l}$ computes $\mX^{k,l}_{\vv}$ by integrating features of $\mH^{k,l}_{\vv_{/1}},\ldots,\mH^{k,l}_{\vv_{/k}}$.
+Topologically, this process reconstructs a simplex $\sigma$ (represented by $\vv$) from its immediate faces $\tau_{/1},\ldots,\tau_{/k}$. 
+The vertex repetition patterns within the tuples serve as a structural blueprint for this reconstruction (Figure~\ref{fig:link_fwl_simplex}(c)). We distinguish two cases based on the dimension of the resulting simplex:
+
+\begin{enumerate}[wide, labelwidth=!, labelindent=*, nosep, leftmargin=*]
+    \item[\textbf{Case 1} ($\sigma$ is a $(k{-}1)$-simplex):]
+        When $\vv$ contains $k$ distinct vertices, the input simplices $\tau_{/1},\ldots,\tau_{/k}$ correspond exactly to the $k$ immediate facets of $\sigma$ (e.g., for $\sigma=\{1,2,3\}$, the facets are $\{1,2\}, \{1,3\}, \{2,3\}$). The fixed ordering of tuple $\vv$ implicitly encodes both the orientation and shared boundaries between these facets. This canonical ordering enables $\Psi^{k,l}$ to systematically reconstruct the complete internal structure of the $(k{-}1)$-simplex, provided the coface messages carry sufficient information.
+    \item[\textbf{Case 2} ($\sigma$ is a $d$-simplex with $d < k{-}1$):]
+        When $\vv$ contains only $d{+}1$ distinct vertices (where $d{+}1 < k$), the tuple $\vv$ yields a $d$-simplex $\sigma$.
+
+        To identify the facets, consider any vertex $u$ that appears $c_u$ times in $\vv$: it will appear either $c_u$ or $c_u{-}1$ times in each substitution $\vv_{t/i}$ (for $i=1,\dots,k$), depending on whether the substituted vertex is $u$. By removing each repeated vertex $u$ exactly $c_u{-}1$ times from $\vv$ and from each $\vv_{t/i}$, we obtain tuples with one fewer distinct vertex than $\vv$, thus identifying the facets of $\sigma$. For instance, with $k=2$, $\vv=(1,1)$, and $t=2$: vertex $1$ appears twice in $\vv$, so after removing it once from $\vv$ and each substitution, we obtain the facets $\{1\}$, $\{2\}$, and $\{2\}$ of the 1-simplex $\sigma=\{1,2\}$. This systematic reduction process ensures that $\Psi^{k,l}$ can canonically reconstruct the internal structure of any simplex of dimension $d < k$ from its facets, analogous to Case 1. 
+        The remaining case, where $t \in \vv$, requires no separate consideration: since $\vv$ would then contain the same set of distinct vertices as $\vv$, it represents a simplex of the same dimension already covered in the above analysis. Thus, all simplices of dimension up to $k$ have been discussed.
+\end{enumerate}
 
 \subsection{Unfolding the Computational Trace of $k$-WL}
 \label{sec:k_fwl_subtrees}
