@@ -42,7 +42,55 @@ This construction yields a multi-scale topological representation of $G$ in whic
 
 \subsection{Graph Decomposition via Cohesiveness}
 
-We first introduce the $k$-block decomposition of a graph.
+Any connected graph admits a canonical decomposition into a tree of $2$-connected components, known as its \emph{block–cut tree}. 
+Each node of this tree is either a \emph{block} (a maximal $2$-connected subgraph, a bridge (or an edge connecting two vertices), or an isolated vertex) or a \emph{cut vertex} (also called an articulation point), and edges encode incidences between blocks and cut vertices. 
+A cut vertex is a vertex whose removal strictly increases the number of connected components.
+
+Subsequently, 
+
+
+
+% A **\(k\)-block tree decomposition** is a generalization of tree decompositions that captures higher-order connectivity in graphs by organizing them into a tree-like structure where each node (called a *bag*) contains a subset of vertices, and the intersection of bags satisfies certain connectivity properties related to \(k\)-blocks—maximal sets of vertices that cannot be separated by fewer than \(k\) vertices.
+
+% Formally, let \(G = (V, E)\) be an undirected graph. A **\(k\)-block tree decomposition** of \(G\) is a pair \((T, \{X_t\}_{t \in V(T)})\), where \(T\) is a tree and each \(X_t \subseteq V\) is a bag associated with a node \(t\) of \(T\), satisfying the following conditions:
+
+% \begin{enumerate}
+%     \item \(\bigcup_{t \in V(T)} X_t = V\);
+%     \item For every edge \(\{u, v\} \in E\), there exists a node \(t \in V(T)\) such that \(\{u, v\} \subseteq X_t\);
+%     \item For every vertex \(v \in V\), the set \(\{ t \in V(T) \mid v \in X_t \}\) induces a connected subtree of \(T\);
+%     \item For every separator \(S \subseteq V\) with \(|S| < k\), the graph \(G - S\) has at most one connected component containing a \(k\)-block, and this property is reflected in the tree structure: if two bags \(X_{t_1}, X_{t_2}\) both contain a common \(k\)-block \(B\), then all bags on the unique path between \(t_1\) and \(t_2\) in \(T\) also contain \(B\).
+% \end{enumerate}
+
+% Equivalently, a \(k\)-block tree decomposition can be viewed as a tree decomposition in which the adhesion (i.e., the size of intersections \(X_t \cap X_{t'}\) for adjacent \(t, t' \in T\)) is less than \(k\), and each torso (the graph obtained by turning each neighborhood of a separator into a clique) either has no \(k\)-block or isolates a unique \(k\)-block.
+
+
+% \paragraph{Special Cases.}
+% \begin{itemize}[leftmargin=*,nosep]
+%     \item $k = 1$: the $1$-block tree decomposition coincides with the
+%     classical block–cut tree (decomposition into $2$-connected
+%     components).
+%     \item $k = 2$: the $2$-block tree decomposition coincides with the
+%     Tutte decomposition into $3$-connected components.
+% \end{itemize}
+% The hierarchical structure of the cohesive simplicial complex allows us to decompose a graph into $k$-blocks.
+
+% \begin{definition}[$k$-block]
+% A \emph{$k$-block} in a graph $G$ is a maximal vertex set $B \subseteq V(G)$ with $|B| \geq k$ such that no separation $(A,X,B)$ of $G$ with $|X| < k$ has vertices of $B$ in both $A \setminus X$ and $B \setminus X$.
+% Equivalently: no two vertices of $B$ can be separated by deleting fewer than $k$ vertices from $G$.
+% \end{definition}
+
+% \begin{definition}[Tree decomposition displaying $k$-blocks]
+% A tree decomposition $(T, \{V_t \mid t \in V(T)\})$ of $G$ \emph{displays} a $k$-block $B$ if there exists a node $t \in V(T)$ such that $B \subseteq V_t$ and $B \not\subseteq V_{t'}$ for any neighbor $t'$ of $t$.
+% \end{definition}
+
+% \begin{definition}[$k$-block tree decomposition]
+% A \emph{$k$-block tree decomposition} of a finite graph $G$ is a tree decomposition $(T, \{V_t\})$ satisfying:
+% \begin{enumerate}[label=(\roman*)]
+%     \item \textbf{Adhesion $< k$:} $|V_t \cap V_{t'}| < k$ for every edge $tt' \in E(T)$;
+%     \item \textbf{Displays all separable $k$-blocks:} every $k$-block $B$ that can be separated from $V(G) \setminus B$ by fewer than $k$ vertices is displayed by some part $V_t$.
+% \end{enumerate}
+% \end{definition}
+
 
 % We show that facets admit a reversible decomposition of the cohesive simplicial complex into a tree-like structure.
 % This is based on the below observations.
