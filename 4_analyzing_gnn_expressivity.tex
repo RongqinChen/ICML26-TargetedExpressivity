@@ -1,129 +1,131 @@
-\section{Reinterpreting $k$-FWL GNNs via Simplicial Complexes}
+% \section{Reinterpreting $k$-FWL GNNs via Simplicial Complexes}
 
-\subsection{From Graphs to Simplicial Complexes}
-The $k$-WL update rule (Equation~\ref{eq:kwl_gnns}) operates uniformly over all $k$-tuples, embedding the input graph $G$ into a labeled complete graph $K_G$ (Figure~\ref{fig:link_fwl_simplex}).c
-This yields a \textit{labeled simplicial complex} $\gK(G)$, where each subset of $d+1$ distinct vertices forms a $d$-simplex.
+% \subsection{From Graphs to Simplicial Complexes}
+% The $k$-WL update rule (Equation~\ref{eq:kwl_gnns}) operates uniformly over all $k$-tuples, embedding the input graph $G$ into a labeled complete graph $K_G$ (Figure~\ref{fig:link_fwl_simplex}).c
+% This yields a \textit{labeled simplicial complex} $\gK(G)$, where each subset of $d+1$ distinct vertices forms a $d$-simplex.
 
-Mapping all $k$-tuples with identical vertex sets to a single simplex shows that these tuples collectively span the $(k{-}1)$-skeleton $\gK(G)^{(k{-}1)}$. 
-Thus, message-passing operates over the $(k{-}1)$-skeleton, with each $k$-tuple representing a simplex of dimension up to $k{-}1$.
-This simplicial view exposes two topological operations in Equation~\ref{eq:kwl_gnns}: \textit{coface aggregation} and \textit{face Combination}.
+% Mapping all $k$-tuples with identical vertex sets to a single simplex shows that these tuples collectively span the $(k{-}1)$-skeleton $\gK(G)^{(k{-}1)}$. 
+% Thus, message-passing operates over the $(k{-}1)$-skeleton, with each $k$-tuple representing a simplex of dimension up to $k{-}1$.
+% This simplicial view exposes two topological operations in Equation~\ref{eq:kwl_gnns}: \textit{coface aggregation} and \textit{face Combination}.
 
-\begin{figure}[tb]
-    \centering
-    \includegraphics[width=1.0\columnwidth]{figures/link_kfwl_simplex.pdf}
-    \caption{\label{fig:link_fwl_simplex}
-        \textbf{Simplicial Operations included in 3-WL Message Passing.}
-        \textbf{(a)} \textit{Simplicial completion:} The input graph is extended to a complete graph by inserting auxiliary edges (dotted), ensuring that every subset of $d{+}1$ vertices forms a $d$-simplex for $d = 0,1,2$.
-        \textbf{(b)} \textit{coface Aggregation:} For $\vv=(1,2)$ forming the 1-simplex $\{1,2\}$, each $t \in V \setminus \vv$ yields the extended tuple $(1,2,t)$ corresponding to a 2-simplex $\{1,2,t\}$ (a cofacet of $\{1,2\}$). Similarly, for $\vv=(1,1)$ forming the 0-simplex $\{1\}$, each $t \in V \setminus \vv$ yields the extended tuple $(1,1,t)$ corresponding to a 1-simplex $\{1,t\}$ (a cofacet of $\{1\}$).
-        \textbf{(c)} \textit{Ordered Facet Combination:} The output tuple corresponds to a $d$-simplex while the input tuples correspond to facets of the $d$-simplex (after removing repeated vertices when they exist). For example, if $\vv=(1,2)$ and $t=3$, the output tuple corresponds to 2-simplex $\{1,2,3\}$, while the input tuples correspond to $\{1,2\}$, $\{2,3\}$, and $\{3,1\}$, respectively. If $\vv=(1,1)$ and $t=2$, after removing repeated vertices, the output tuple corresponds to 1-simplex $\{1,2\}$, while the input tuples correspond to $\{1\}$, $\{2\}$, and $\{2\}$.
-    }
-\end{figure}
+% \begin{figure}[tb]
+%     \centering
+%     \includegraphics[width=1.0\columnwidth]{figures/link_kfwl_simplex.pdf}
+%     \caption{\label{fig:link_fwl_simplex}
+%         \textbf{Simplicial Operations included in 3-WL Message Passing.}
+%         \textbf{(a)} \textit{Simplicial completion:} The input graph is extended to a complete graph by inserting auxiliary edges (dotted), ensuring that every subset of $d{+}1$ vertices forms a $d$-simplex for $d = 0,1,2$.
+%         \textbf{(b)} \textit{coface Aggregation:} For $\vv=(1,2)$ forming the 1-simplex $\{1,2\}$, each $t \in V \setminus \vv$ yields the extended tuple $(1,2,t)$ corresponding to a 2-simplex $\{1,2,t\}$ (a cofacet of $\{1,2\}$). Similarly, for $\vv=(1,1)$ forming the 0-simplex $\{1\}$, each $t \in V \setminus \vv$ yields the extended tuple $(1,1,t)$ corresponding to a 1-simplex $\{1,t\}$ (a cofacet of $\{1\}$).
+%         \textbf{(c)} \textit{Ordered Facet Combination:} The output tuple corresponds to a $d$-simplex while the input tuples correspond to facets of the $d$-simplex (after removing repeated vertices when they exist). For example, if $\vv=(1,2)$ and $t=3$, the output tuple corresponds to 2-simplex $\{1,2,3\}$, while the input tuples correspond to $\{1,2\}$, $\{2,3\}$, and $\{3,1\}$, respectively. If $\vv=(1,1)$ and $t=2$, after removing repeated vertices, the output tuple corresponds to 1-simplex $\{1,2\}$, while the input tuples correspond to $\{1\}$, $\{2\}$, and $\{2\}$.
+%     }
+% \end{figure}
 
-\paragraph{Coface Aggregation.}
-The aggregation function $\oplus$ in Equation~\ref{eq:kwl_gnns} computes $\mH^{k,l}_{\vv_{/i}}$ by pooling messages from all tuples $\vv_{t/i}$ with $t \in V(G)$. 
-The tuple $\vv_{/i}$ is a $(k{-}1)$-tuple containing at most $k{-}1$ distinct vertices; let $\tau$ denote the $d$-simplex ($d \le k{-}2$) represented by $\vv_{/i}$. 
-If $t \notin \vv_{/i}$, then $\vv_{t/i}$ corresponds to the $(d{+}1)$-simplex $\sigma := \tau \cup \{t\}$, which is an immediate cofacet of $\tau$. 
-As $t$ varies over $V(G) \setminus \vv_{/i}$, the aggregation thus systematically pools messages from all immediate cofaces of $\tau$, capturing how $\tau$ is embedded into higher-dimensional simplices (Figure~\ref{fig:link_fwl_simplex}(b)). 
-If $t \in \vv_{/i}$, then $\vv_{t/i}$ represents the same simplex $\tau$, so these terms correspond to self-messages and require no special topological treatment.
+% \paragraph{Coface Aggregation.}
+% The aggregation function $\oplus$ in Equation~\ref{eq:kwl_gnns} computes $\mH^{k,l}_{\vv_{/i}}$ by pooling messages from all tuples $\vv_{t/i}$ with $t \in V(G)$. 
+% The tuple $\vv_{/i}$ is a $(k{-}1)$-tuple containing at most $k{-}1$ distinct vertices; let $\tau$ denote the $d$-simplex ($d \le k{-}2$) represented by $\vv_{/i}$. 
+% If $t \notin \vv_{/i}$, then $\vv_{t/i}$ corresponds to the $(d{+}1)$-simplex $\sigma := \tau \cup \{t\}$, which is an immediate cofacet of $\tau$. 
+% As $t$ varies over $V(G) \setminus \vv_{/i}$, the aggregation thus systematically pools messages from all immediate cofaces of $\tau$, capturing how $\tau$ is embedded into higher-dimensional simplices (Figure~\ref{fig:link_fwl_simplex}(b)). 
+% If $t \in \vv_{/i}$, then $\vv_{t/i}$ represents the same simplex $\tau$, so these terms correspond to self-messages and require no special topological treatment.
 
-\paragraph{Face Combination.}
-The update function $\Psi^{k,l}$ computes $\mX^{k,l}_{\vv}$ by integrating features of $\mH^{k,l}_{\vv_{/1}},\ldots,\mH^{k,l}_{\vv_{/k}}$.
-Topologically, this process reconstructs a simplex $\sigma$ (represented by $\vv$) from its immediate faces $\tau_{/1},\ldots,\tau_{/k}$. 
-The vertex repetition patterns within the tuples serve as a structural blueprint for this reconstruction (Figure~\ref{fig:link_fwl_simplex}(c)). We distinguish two cases based on the dimension of the resulting simplex:
+% \paragraph{Face Combination.}
+% The update function $\Psi^{k,l}$ computes $\mX^{k,l}_{\vv}$ by integrating features of $\mH^{k,l}_{\vv_{/1}},\ldots,\mH^{k,l}_{\vv_{/k}}$.
+% Topologically, this process reconstructs a simplex $\sigma$ (represented by $\vv$) from its immediate faces $\tau_{/1},\ldots,\tau_{/k}$. 
+% The vertex repetition patterns within the tuples serve as a structural blueprint for this reconstruction (Figure~\ref{fig:link_fwl_simplex}(c)). We distinguish two cases based on the dimension of the resulting simplex:
 
-\begin{enumerate}[wide, labelwidth=!, labelindent=*, nosep, leftmargin=*]
-    \item[\textbf{Case 1} ($\sigma$ is a $(k{-}1)$-simplex):]
-        When $\vv$ contains $k$ distinct vertices, the input simplices $\tau_{/1},\ldots,\tau_{/k}$ correspond exactly to the $k$ immediate facets of $\sigma$ (e.g., for $\sigma=\{1,2,3\}$, the facets are $\{1,2\}, \{1,3\}, \{2,3\}$). The fixed ordering of tuple $\vv$ implicitly encodes both the orientation and shared boundaries between these facets. This canonical ordering enables $\Psi^{k,l}$ to systematically reconstruct the complete internal structure of the $(k{-}1)$-simplex, provided the coface messages carry sufficient information.
-    \item[\textbf{Case 2} ($\sigma$ is a $d$-simplex with $d < k{-}1$):]
-        When $\vv$ contains only $d{+}1$ distinct vertices (where $d{+}1 < k$), the tuple $\vv$ yields a $d$-simplex $\sigma$.
+% \begin{enumerate}[wide, labelwidth=!, labelindent=*, nosep, leftmargin=*]
+%     \item[\textbf{Case 1} ($\sigma$ is a $(k{-}1)$-simplex):]
+%         When $\vv$ contains $k$ distinct vertices, the input simplices $\tau_{/1},\ldots,\tau_{/k}$ correspond exactly to the $k$ immediate facets of $\sigma$ (e.g., for $\sigma=\{1,2,3\}$, the facets are $\{1,2\}, \{1,3\}, \{2,3\}$). The fixed ordering of tuple $\vv$ implicitly encodes both the orientation and shared boundaries between these facets. This canonical ordering enables $\Psi^{k,l}$ to systematically reconstruct the complete internal structure of the $(k{-}1)$-simplex, provided the coface messages carry sufficient information.
+%     \item[\textbf{Case 2} ($\sigma$ is a $d$-simplex with $d < k{-}1$):]
+%         When $\vv$ contains only $d{+}1$ distinct vertices (where $d{+}1 < k$), the tuple $\vv$ yields a $d$-simplex $\sigma$.
 
-        To identify the facets, consider any vertex $u$ that appears $c_u$ times in $\vv$: it will appear either $c_u$ or $c_u{-}1$ times in each substitution $\vv_{t/i}$ (for $i=1,\dots,k$), depending on whether the substituted vertex is $u$. By removing each repeated vertex $u$ exactly $c_u{-}1$ times from $\vv$ and from each $\vv_{t/i}$, we obtain tuples with one fewer distinct vertex than $\vv$, thus identifying the facets of $\sigma$. For instance, with $k=2$, $\vv=(1,1)$, and $t=2$: vertex $1$ appears twice in $\vv$, so after removing it once from $\vv$ and each substitution, we obtain the facets $\{1\}$, $\{2\}$, and $\{2\}$ of the 1-simplex $\sigma=\{1,2\}$. This systematic reduction process ensures that $\Psi^{k,l}$ can canonically reconstruct the internal structure of any simplex of dimension $d < k$ from its facets, analogous to Case 1. 
-        The remaining case, where $t \in \vv$, requires no separate consideration: since $\vv$ would then contain the same set of distinct vertices as $\vv$, it represents a simplex of the same dimension already covered in the above analysis. Thus, all simplices of dimension up to $k$ have been discussed.
-\end{enumerate}
+%         To identify the facets, consider any vertex $u$ that appears $c_u$ times in $\vv$: it will appear either $c_u$ or $c_u{-}1$ times in each substitution $\vv_{t/i}$ (for $i=1,\dots,k$), depending on whether the substituted vertex is $u$. By removing each repeated vertex $u$ exactly $c_u{-}1$ times from $\vv$ and from each $\vv_{t/i}$, we obtain tuples with one fewer distinct vertex than $\vv$, thus identifying the facets of $\sigma$. For instance, with $k=2$, $\vv=(1,1)$, and $t=2$: vertex $1$ appears twice in $\vv$, so after removing it once from $\vv$ and each substitution, we obtain the facets $\{1\}$, $\{2\}$, and $\{2\}$ of the 1-simplex $\sigma=\{1,2\}$. This systematic reduction process ensures that $\Psi^{k,l}$ can canonically reconstruct the internal structure of any simplex of dimension $d < k$ from its facets, analogous to Case 1. 
+%         The remaining case, where $t \in \vv$, requires no separate consideration: since $\vv$ would then contain the same set of distinct vertices as $\vv$, it represents a simplex of the same dimension already covered in the above analysis. Thus, all simplices of dimension up to $k$ have been discussed.
+% \end{enumerate}
 
-\subsection{Unfolding the Computational Trace of $k$-WL}
-\label{sec:k_fwl_subtrees}
+% \subsection{Unfolding the Computational Trace of $k$-WL}
+% \label{sec:k_fwl_subtrees}
 
-To characterize the expressivity of $k$-WL GNNs, we formalize \textit{$k$-WL-subtrees}---tree-structured computational histories that generalize WL-subtrees~\citep{xu2019powerful} from vertices to $k$-tuples.
-While WL-subtrees capture neighborhood aggregation for MPNNs, $k$-WL-subtrees encode the hierarchical message-passing trajectories of $k$-WL over $k$-tuples.
+% To characterize the expressivity of $k$-WL GNNs, we formalize \textit{$k$-WL-subtrees}---tree-structured computational histories that generalize WL-subtrees~\citep{xu2019powerful} from vertices to $k$-tuples.
+% While WL-subtrees capture neighborhood aggregation for MPNNs, $k$-WL-subtrees encode the hierarchical message-passing trajectories of $k$-WL over $k$-tuples.
 
-\begin{definition}[WL-subtrees]
-    \label{def:wl_subtree}
-    The depth-$L$ WL-subtree $\gT_L(v)$ of vertex $v$ is a rooted tree where: (i) the root represents $v$; (ii) each non-leaf node $u$ has children corresponding to its neighbors $N_G(u)$; and (iii) leaf nodes at depth $L$ are labeled with initial vertex features.
-    A graph $G$ induces a set of WL-subtrees, one for each vertex: $\{\gT_L(v) \mid v \in V\}$.
-\end{definition}
+% \begin{definition}[WL-subtrees]
+%     \label{def:wl_subtree}
+%     The depth-$L$ WL-subtree $\gT_L(v)$ of vertex $v$ is a rooted tree where: (i) the root represents $v$; (ii) each non-leaf node $u$ has children corresponding to its neighbors $N_G(u)$; and (iii) leaf nodes at depth $L$ are labeled with initial vertex features.
+%     A graph $G$ induces a set of WL-subtrees, one for each vertex: $\{\gT_L(v) \mid v \in V\}$.
+% \end{definition}
 
-\begin{lemma}[WL-subtrees Characterize MPNN Expressivity]
-    \label{lemma:wl_substree_expressivity}
-    Two vertices receive distinct MPNN representations iff their WL-subtrees are non-isomorphic. Similarly, two graphs are distinguishable iff they induce distinct sets of WL-subtrees.
-\end{lemma}
+% \begin{lemma}[WL-subtrees Characterize MPNN Expressivity]
+%     \label{lemma:wl_substree_expressivity}
+%     Two vertices receive distinct MPNN representations iff their WL-subtrees are non-isomorphic. Similarly, two graphs are distinguishable iff they induce distinct sets of WL-subtrees.
+% \end{lemma}
 
-Building on the $k$-WL update rule (Equation~\ref{eq:kwl_gnns}), we extend WL-subtrees to higher order:
+% Building on the $k$-WL update rule (Equation~\ref{eq:kwl_gnns}), we extend WL-subtrees to higher order:
 
-\begin{definition}[$k$-WL-subtrees]
-    \label{def:kfwl_subtree}
-    For a graph $G$ and a $k$-tuple $\vv \in V(G)^{k}$, the depth-$L$ $k$-WL-subtree $\gF^k_L(\vv)$ is a rooted tree that records the full computational history of $\vv$ under $k$-WL. The root is labeled by $\vv$.
-    Each internal node labeled by a $k$-tuple $\vu$ has children obtained by replacing each position $i \in \{1,\dots,k\}$ with every vertex $t \in V(G)$, yielding child tuples $\vu_{t/i}$, in direct correspondence with the $k$-way aggregation in Equation~\ref{eq:kwl_gnns}.
-    Leaf nodes at depth $L$ are labeled with the initial features of the corresponding $k$-tuple.
-    A graph $G$ thus induces a collection of $k$-WL-subtrees, one for each $k$-tuple: $\{\gF^k_L(\vv) \mid \vv \in V(G)^{k}\}$.
-\end{definition}
-
-
-\begin{lemma}[$k$-WL-subtrees Characterize $k$-WL Expressivity]
-    \label{lemma:kfwl_subtree_expressivity}
-    Two $k$-tuples yield distinct $k$-WL representations iff their $k$-WL-subtrees differ in structure or leaf labels. Consequently, two graphs are distinguishable by $k$-WL iff they produce different sets of $k$-WL-subtrees over all $k$-tuples.
-\end{lemma}
-
-As illustrated in Figure~\ref{fig:WL_subtree_and_kfwl_subtree}, while vertices $2$ and $2'$ have isomorphic WL-subtrees and thus identical MPNN embeddings, the 3-WL-subtrees of tuples $(1,2,3)$ and $(1',2',3')$ are non-isomorphic---enabling 3-WL to distinguish graphs indistinguishable by 1-WL. This shows that $k$-WL expressivity reduces precisely to the isomorphism of $k$-WL-subtrees.
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=1.0\columnwidth]{figures/wl_subtrees_and_kfwl_subtrees.pdf}
-    \caption{\label{fig:WL_subtree_and_kfwl_subtree}\textbf{Illustration of WL-Subtrees and 3-WL-Subtrees.}
-        (a) Three pairwise non-isomorphic graphs for WL-subtree and 3-WL-subtree construction.
-        (b) \textit{WL-subtrees:} WL-subtrees encode iterative neighborhood aggregation. Vertices $0$ and $2$ have distinct WL-subtrees and thus distinct representations. Vertices $2$ and $2'$ share isomorphic WL-subtrees despite differing graphs, forcing identical MPNN embeddings.
-        (c) \textit{3-WL-subtrees:} Operating on vertex triples, 3-WL builds richer histories. Tuples $(1,2,3)$ and $(1',2',3')$ yield non-isomorphic 3-WL-subtrees (differences in dashed boxes), enabling discrimination where 1-WL fails.
-    }
-\end{figure}
-
-\subsection{A Simplicial Abstraction of $k$-WL-Subtrees}
-Because $k$-tuples allow repeated vertices, distinct tuples may correspond to the same simplex, introducing structural redundancy that complicates theoretical analysis of $k$-WL-subtrees. 
-We resolve this by introducing \textit{simplicial $k$-trees}, a streamlined framework that maps tuples sharing identical vertex sets to a single simplex. 
-This abstraction eliminates redundancy and provides a cleaner foundation for characterizing $k$-WL expressivity.
+% \begin{definition}[$k$-WL-subtrees]
+%     \label{def:kfwl_subtree}
+%     For a graph $G$ and a $k$-tuple $\vv \in V(G)^{k}$, the depth-$L$ $k$-WL-subtree $\gF^k_L(\vv)$ is a rooted tree that records the full computational history of $\vv$ under $k$-WL. The root is labeled by $\vv$.
+%     Each internal node labeled by a $k$-tuple $\vu$ has children obtained by replacing each position $i \in \{1,\dots,k\}$ with every vertex $t \in V(G)$, yielding child tuples $\vu_{t/i}$, in direct correspondence with the $k$-way aggregation in Equation~\ref{eq:kwl_gnns}.
+%     Leaf nodes at depth $L$ are labeled with the initial features of the corresponding $k$-tuple.
+%     A graph $G$ thus induces a collection of $k$-WL-subtrees, one for each $k$-tuple: $\{\gF^k_L(\vv) \mid \vv \in V(G)^{k}\}$.
+% \end{definition}
 
 
-We begin by classifying the simplex-to-simplex relationships induced by parent-child $k$-tuples in a $k$-WL-subtree.
-Consider a $k$-tuple $\vv = (v_1, \dots, v_k) \in V(G)^{k}$ (possibly containing repeated vertices). 
-During message passing, $\vv$ aggregates from $k$ groups: the $i$-th group comprises all tuples $\{\vv_{t/i} \mid t \in V(G)\}$ for $i \in \{1,\dots,k\}$.
-Since the same aggregation structure applies to each group, we focus on a single representative group without loss of generality.
-Let $\sigma$ denote the simplex corresponding to $\vv$, and $\sigma_{t/i}$ the simplex corresponding to $\vv_{t/i}$.
-The relationship between $\sigma$ and $\sigma_{t/i}$ falls into four cases: 
-\begin{enumerate}[wide, labelwidth=!, labelindent=*, nosep, leftmargin=*]
-    \item[\textbf{Case 1} ($t=v_i$):] $\sigma_{t/i} = \sigma$;
-    \item[\textbf{Case 2} ($t \neq v_i$, $t\in \sigma$, $v_i$ unique in $\vv$):] $\sigma_{t/i}=\sigma \setminus \{v_i\}$, thus $\sigma_{t/i}$ is an immediate face of $\sigma$;
-    \item[\textbf{Case 3} ($t \neq v_i$, $t \notin \sigma$, $v_i$ unique in $\vv$):] let $\tau:= \sigma_{t/i} \cap \sigma$, then $\sigma_{t/i}=\tau \cup \{t\}$ and $\sigma=\tau \cup \{v_i\}$, so both $\sigma_{t/i}$ and $\sigma$ are immediate cofaces of their shared face $\tau$;
-    \item[\textbf{Case 4} ($t \neq v_i$, $t \notin \sigma$, $v_i$ not unique in $\vv$):] $\sigma_{t/i}=\sigma \cup \{t\}$, thus $\sigma_{t/i}$ is an immediate coface of $\sigma$.
-\end{enumerate}
+% \begin{lemma}[$k$-WL-subtrees Characterize $k$-WL Expressivity]
+%     \label{lemma:kfwl_subtree_expressivity}
+%     Two $k$-tuples yield distinct $k$-WL representations iff their $k$-WL-subtrees differ in structure or leaf labels. Consequently, two graphs are distinguishable by $k$-WL iff they produce different sets of $k$-WL-subtrees over all $k$-tuples.
+% \end{lemma}
 
-Crucially, Case 3 captures messages from simplices sharing a common face with $\sigma$. This can be decomposed into a two-step pathway: $\sigma$ receives a message from the shared face $\tau$, which in turn receives a message from $\sigma_{t/i}$.
-Consequently, all message-passing pathways in a $k$-WL-subtree reduce to repeated face and coface operations.
-A depth-$L$ $k$-WL-subtree thus encodes at most $2L$ distinct face-coface pathways, establishing an upper bound on the structural patterns $k$-WL can capture.
+% As illustrated in Figure~\ref{fig:WL_subtree_and_kfwl_subtree}, while vertices $2$ and $2'$ have isomorphic WL-subtrees and thus identical MPNN embeddings, the 3-WL-subtrees of tuples $(1,2,3)$ and $(1',2',3')$ are non-isomorphic---enabling 3-WL to distinguish graphs indistinguishable by 1-WL. This shows that $k$-WL expressivity reduces precisely to the isomorphism of $k$-WL-subtrees.
 
-Based on the classification, we define simplicial $k$-trees as an abstraction of $k$-WL-subtrees:
-\begin{definition}[Simplicial $k$-Trees]
-    \label{def:simplicial_ktrees}
-    A depth-$2L$ simplicial $k$-tree $\gS^k_{2L}(\sigma)$ is a rooted tree where the root represents a simplex $\sigma \in \gK(G)^{(k{-}1)}$ of dimension $d \le k-1$. Its structure is defined recursively by the following message-passing pathways:
-    \begin{itemize}[wide, labelwidth=!, labelindent=*, nosep, leftmargin=*]
-        \item \textbf{Face:} If $d > 0$, the node $\sigma$ has children corresponding to each of its immediate faces $\{\tau_1, \dots, \tau_{d}\}$.
-        \item \textbf{Coface:} If $d < k-1$, the node $\sigma$ has children corresponding to all its immediate cofaces $\{\varrho \in \gK(G)^{(k{-}1)} \mid \sigma \subseteq \varrho \text{ and } \dim(\varrho) = d+1\}$.
-    \end{itemize}
-    Leaf nodes at depth $2L$ are labeled with the initial features of the corresponding simplex. A graph $G$ induces a set of simplicial $k$-trees $\{\gS^k_{2L}(\sigma) \mid \sigma \in \gK(G)^{(k{-}1)}\}$.
-\end{definition}
+% \begin{figure}[htbp]
+%     \centering
+%     \includegraphics[width=1.0\columnwidth]{figures/wl_subtrees_and_kfwl_subtrees.pdf}
+%     \caption{\label{fig:WL_subtree_and_kfwl_subtree}\textbf{Illustration of WL-Subtrees and 3-WL-Subtrees.}
+%         (a) Three pairwise non-isomorphic graphs for WL-subtree and 3-WL-subtree construction.
+%         (b) \textit{WL-subtrees:} WL-subtrees encode iterative neighborhood aggregation. Vertices $0$ and $2$ have distinct WL-subtrees and thus distinct representations. Vertices $2$ and $2'$ share isomorphic WL-subtrees despite differing graphs, forcing identical MPNN embeddings.
+%         (c) \textit{3-WL-subtrees:} Operating on vertex triples, 3-WL builds richer histories. Tuples $(1,2,3)$ and $(1',2',3')$ yield non-isomorphic 3-WL-subtrees (differences in dashed boxes), enabling discrimination where 1-WL fails.
+%     }
+% \end{figure}
 
-\begin{lemma}[Simplicial $k$-Trees Characterize $k$-WL Expressivity]
-    \label{lemma:simplicial_ktree_expressivity}
-    Two $k$-tuples receive distinct $k$-WL representations iff their corresponding simplicial $k$-trees are non-isomorphic. Consequently, two graphs are distinguishable by $k$-WL iff they induce distinct sets of simplicial $k$-trees.
-\end{lemma}
+% \subsection{A Simplicial Abstraction of $k$-WL-Subtrees}
+% Because $k$-tuples allow repeated vertices, distinct tuples may correspond to the same simplex, introducing structural redundancy that complicates theoretical analysis of $k$-WL-subtrees. 
+% We resolve this by introducing \textit{simplicial $k$-trees}, a streamlined framework that maps tuples sharing identical vertex sets to a single simplex. 
+% This abstraction eliminates redundancy and provides a cleaner foundation for characterizing $k$-WL expressivity.
+
+
+% We begin by classifying the simplex-to-simplex relationships induced by parent-child $k$-tuples in a $k$-WL-subtree.
+% Consider a $k$-tuple $\vv = (v_1, \dots, v_k) \in V(G)^{k}$ (possibly containing repeated vertices). 
+% During message passing, $\vv$ aggregates from $k$ groups: the $i$-th group comprises all tuples $\{\vv_{t/i} \mid t \in V(G)\}$ for $i \in \{1,\dots,k\}$.
+% Since the same aggregation structure applies to each group, we focus on a single representative group without loss of generality.
+% Let $\sigma$ denote the simplex corresponding to $\vv$, and $\sigma_{t/i}$ the simplex corresponding to $\vv_{t/i}$.
+% The relationship between $\sigma$ and $\sigma_{t/i}$ falls into four cases: 
+% \begin{enumerate}[wide, labelwidth=!, labelindent=*, nosep, leftmargin=*]
+%     \item[\textbf{Case 1} ($t=v_i$):] $\sigma_{t/i} = \sigma$;
+%     \item[\textbf{Case 2} ($t \neq v_i$, $t\in \sigma$, $v_i$ unique in $\vv$):] $\sigma_{t/i}=\sigma \setminus \{v_i\}$, thus $\sigma_{t/i}$ is an immediate face of $\sigma$;
+%     \item[\textbf{Case 3} ($t \neq v_i$, $t \notin \sigma$, $v_i$ unique in $\vv$):] let $\tau:= \sigma_{t/i} \cap \sigma$, then $\sigma_{t/i}=\tau \cup \{t\}$ and $\sigma=\tau \cup \{v_i\}$, so both $\sigma_{t/i}$ and $\sigma$ are immediate cofaces of their shared face $\tau$;
+%     \item[\textbf{Case 4} ($t \neq v_i$, $t \notin \sigma$, $v_i$ not unique in $\vv$):] $\sigma_{t/i}=\sigma \cup \{t\}$, thus $\sigma_{t/i}$ is an immediate coface of $\sigma$.
+% \end{enumerate}
+
+% Crucially, Case 3 captures messages from simplices sharing a common face with $\sigma$. This can be decomposed into a two-step pathway: $\sigma$ receives a message from the shared face $\tau$, which in turn receives a message from $\sigma_{t/i}$.
+% Consequently, all message-passing pathways in a $k$-WL-subtree reduce to repeated face and coface operations.
+% A depth-$L$ $k$-WL-subtree thus encodes at most $2L$ distinct face-coface pathways, establishing an upper bound on the structural patterns $k$-WL can capture.
+
+% Based on the classification, we define simplicial $k$-trees as an abstraction of $k$-WL-subtrees:
+% \begin{definition}[Simplicial $k$-Trees]
+%     \label{def:simplicial_ktrees}
+%     A depth-$2L$ simplicial $k$-tree $\gS^k_{2L}(\sigma)$ is a rooted tree where the root represents a simplex $\sigma \in \gK(G)^{(k{-}1)}$ of dimension $d \le k-1$. Its structure is defined recursively by the following message-passing pathways:
+%     \begin{itemize}[wide, labelwidth=!, labelindent=*, nosep, leftmargin=*]
+%         \item \textbf{Face:} If $d > 0$, the node $\sigma$ has children corresponding to each of its immediate faces $\{\tau_1, \dots, \tau_{d}\}$.
+%         \item \textbf{Coface:} If $d < k-1$, the node $\sigma$ has children corresponding to all its immediate cofaces $\{\varrho \in \gK(G)^{(k{-}1)} \mid \sigma \subseteq \varrho \text{ and } \dim(\varrho) = d+1\}$.
+%     \end{itemize}
+%     Leaf nodes at depth $2L$ are labeled with the initial features of the corresponding simplex. A graph $G$ induces a set of simplicial $k$-trees $\{\gS^k_{2L}(\sigma) \mid \sigma \in \gK(G)^{(k{-}1)}\}$.
+% \end{definition}
+
+% \begin{lemma}[Simplicial $k$-Trees Characterize $k$-WL Expressivity]
+%     \label{lemma:simplicial_ktree_expressivity}
+%     Two $k$-tuples receive distinct $k$-WL representations iff their corresponding simplicial $k$-trees are non-isomorphic. Consequently, two graphs are distinguishable by $k$-WL iff they induce distinct sets of simplicial $k$-trees.
+% \end{lemma}
+
+% \section{Expressivity of $k$-WL GNNs}
 
 % \subsection{Complete Expressivity of $k$-WL GNNs on Graphs without $k$-Cohesive Sets}
 

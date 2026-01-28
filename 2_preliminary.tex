@@ -8,32 +8,6 @@ As usual, let $[n] = \{1,2,\ldots, n \}$. Let $G=(V(G),E(G), \ell_G)$ be an undi
 Let $\spd(u, v)$ denote the shortest path distance between $u$ and $v$.
 We use $x_{v} \in \mathbb{R}^{d_v}$ to denote attributes of vertex $v \in V(G)$ and $e_{uv}\in \mathbb{R}^{d_e}$ to denote attributes of edge $(u,v) \in E(G)$. They are usually the one-hot encoding of the vertex and edge color respectively. We say that two graphs $G$ and $H$ are \textit{isomorphic} (denoted as $G\simeq H$) if there exists a bijection $\pi \colon V(G) \to V(H)$ such that $\forall u, v \in V(G), (u, v) \in E(G) \Leftrightarrow (\pi(u), \pi(v)) \in E(H)$ and $\forall v \in V(G), \ell_G(v) = \ell_H(\pi(v)) $.
 
-
-
-\paragraph{Graph Connectivity.}
-Throughout, we work with finite, simple, undirected graphs. For a positive integer $n$, let $K_n$ denote the complete graph on $n$ vertices.
-
-For a graph $G$, a \emph{(vertex) separator} is a vertex set $S \subseteq V(G)$ such that the induced subgraph $G[V(G) \setminus S]$ has more than one connected component. A separator is \emph{minimal} if no proper subset of $S$ is a separator.
-The \emph{(vertex) connectivity} $\kappa(G)$ is defined as follows: $\kappa(K_n) = n-1$ for $n \ge 1$ (with the convention $K_1$ is $0$-connected), and for any other connected graph $G$, $\kappa(G)$ is the minimum size of a separator. A graph is \emph{$c$-connected} if $\kappa(G) \ge c$.
-
-For distinct vertices $u, v \in V(G)$, the \emph{local connectivity} $\kappa_G(u,v)$ is the maximum number of internally vertex-disjoint $u$--$v$ paths in $G$. For non-adjacent pairs, Menger's Theorem provides the fundamental equivalence between this path-counting view and the separator-based view of connectivity.
-\begin{theorem}[Menger’s Theorem (vertex version)~\cite{Menger1927,Diestel2017}]
-    \label{thm:menger}
-    Let $u$ and $v$ be distinct, non-adjacent vertices in a graph $G$. The minimum size of a vertex set $S \subseteq V(G)\setminus\{u,v\}$ that separates $u$ from $v$ equals $\kappa_G(u,v)$.
-\end{theorem}
-The global connectivity relates to local connectivity via $\kappa(G) = \min\{\kappa_G(u,v) : u, v \in V(G), u \neq v\}$ for non-complete graphs.
-
-\paragraph{Abstract Simplicial Complexes.}
-To extend the concept of connectivity beyond pairwise relations, we employ the language of abstract simplicial complexes.
-An \emph{abstract simplicial complex} $\Delta$ on a finite vertex set $V$ is a collection of non-empty subsets of $V$ closed under inclusion: if $\sigma \in \Delta$ and $\emptyset \neq \tau \subseteq \sigma$, then $\tau \in \Delta$.
-Elements of $\Delta$ are called \emph{simplices}.
-A simplex $\sigma$ with $|\sigma| = d+1$ is a \emph{$d$-simplex}, and $\dim(\sigma) := d$. The \emph{dimension} of $\Delta$ is $\dim(\Delta) := \max\{\dim(\sigma) : \sigma \in \Delta\}$.
-For $\tau \subseteq \sigma$, we say $\tau$ is a \emph{face} of $\sigma$ and $\sigma$ is a \emph{coface} of $\tau$.
-If $\dim(\sigma)=\dim(\tau)+1$, $\tau$ is an immediate \emph{face} of $\sigma$ and $\sigma$ is an immediate \emph{coface} of $\tau$.
-The \emph{$d$-skeleton} $\Delta^{(d)}$ is the subcomplex consisting of all simplices of dimension at most $d$. In particular, $\Delta^{(0)} = V$ and $\Delta^{(1)}$ is a simple graph on $V$. A complex $\Delta$ is \emph{connected} if its $1$-skeleton $\Delta^{(1)}$ is connected as a graph.
-
-
-
 \paragraph{The Weisfeiler-Lehman Hierarchy.}
 The $k$-dimensional Weisfeiler-Lehman ($k$-WL) algorithm is a color-refinement procedure for graph isomorphism testing.
 For $k \ge 2$, the $k$-WL algorithm assigns colors to $k$-tuples $\vv \in V(G)^k$.
@@ -67,3 +41,26 @@ At each layer $l$, for every $k$-tuple $\vv$, the network updates its representa
     \end{split}
 \end{equation}
 where $\Psi^{k,l}$ is a learnable update function and $\oplus$ denotes a permutation-invariant multiset aggregation function (e.g., sum or mean).
+
+
+\paragraph{Graph Connectivity.}
+Throughout, we work with finite, simple, undirected graphs. For a positive integer $n$, let $K_n$ denote the complete graph on $n$ vertices.
+
+For a graph $G$, a \emph{(vertex) separator} is a vertex set $S \subseteq V(G)$ such that the induced subgraph $G[V(G) \setminus S]$ has more than one connected component. A separator is \emph{minimal} if no proper subset of $S$ is a separator.
+The \emph{(vertex) connectivity} $\kappa(G)$ is defined as follows: $\kappa(K_n) = n-1$ for $n \ge 1$ (with the convention $K_1$ is $0$-connected), and for any other connected graph $G$, $\kappa(G)$ is the minimum size of a separator. A graph is \emph{$c$-connected} if $\kappa(G) \ge c$.
+
+For distinct vertices $u, v \in V(G)$, the \emph{local connectivity} $\kappa_G(u,v)$ is the maximum number of internally vertex-disjoint $u$--$v$ paths in $G$. For non-adjacent pairs, Menger's Theorem provides the fundamental equivalence between this path-counting view and the separator-based view of connectivity.
+\begin{theorem}[Menger’s Theorem (vertex version)~\cite{Menger1927,Diestel2017}]
+    \label{thm:menger}
+    Let $u$ and $v$ be distinct, non-adjacent vertices in a graph $G$. The minimum size of a vertex set $S \subseteq V(G)\setminus\{u,v\}$ that separates $u$ from $v$ equals $\kappa_G(u,v)$.
+\end{theorem}
+The global connectivity relates to local connectivity via $\kappa(G) = \min\{\kappa_G(u,v) : u, v \in V(G), u \neq v\}$ for non-complete graphs.
+
+\paragraph{Abstract Simplicial Complexes.}
+% We use abstract simplicial complexes to characterize complicated substructures in graphs.
+An \emph{abstract simplicial complex} $\Delta$ on a finite vertex set $V$ is a collection of non-empty subsets of $V$ closed under inclusion: if $\sigma \in \Delta$ and $\emptyset \neq \tau \subseteq \sigma$, then $\tau \in \Delta$.
+Elements of $\Delta$ are called \emph{simplices}.
+A simplex $\sigma$ with $|\sigma| = d+1$ is a \emph{$d$-simplex}, and $\dim(\sigma) := d$. The \emph{dimension} of $\Delta$ is $\dim(\Delta) := \max\{\dim(\sigma) : \sigma \in \Delta\}$.
+For $\tau \subseteq \sigma$, we say $\tau$ is a \emph{face} of $\sigma$ and $\sigma$ is a \emph{coface} of $\tau$.
+If $\dim(\sigma)=\dim(\tau)+1$, $\tau$ is an immediate \emph{face} of $\sigma$ and $\sigma$ is an immediate \emph{coface} of $\tau$.
+The \emph{$d$-skeleton} $\Delta^{(d)}$ is the subcomplex consisting of all simplices of dimension at most $d$. In particular, $\Delta^{(0)} = V$ and $\Delta^{(1)}$ is a simple graph on $V$. A complex $\Delta$ is \emph{connected} if its $1$-skeleton $\Delta^{(1)}$ is connected as a graph.

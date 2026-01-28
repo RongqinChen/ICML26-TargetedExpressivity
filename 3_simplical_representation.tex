@@ -1,25 +1,30 @@
 \section{Simplicial Representation of Graphs}
-To capture higher-order connectivity patterns beyond pairwise edges, we introduce a hierarchy of \emph{$c$-cohesive vertex sets} based on vertex connectivity. These sets serve as building blocks for a simplicial complex encoding structural cohesion across multiple scales. We define the \emph{cohesive simplicial complex}, a topological representation that generalizes graph connectivity to higher dimensions while preserving the original graph structure.
+To capture the higher-order connectivity that demands higher-order GNNs,
+we introduce a multi-scale hierarchy of \emph{$c$-cohesive vertex sets}---subsets connected via at least $c$ vertex-disjoint paths.
+These sets form a \emph{cohesive simplicial complex}, a topological scaffold encoding multi-scale regions with robust connectivity.
 
 \subsection{$c$-Cohesive Sets}
-We formalize tightly connected vertex subsets extending the notion of local connectivity.
-
+We extend vertex connectivity from pairs to sets.
 \begin{definition}[$c$-Cohesive Set]
     \label{def:c-cohesive}
     A non-empty vertex set $S \subseteq V(G)$ is \emph{$c$-cohesive} for integer $c \ge 0$ if either:
     \begin{enumerate}[leftmargin=*,nosep]
-        \item $c = 0$ and $|S| = 1$ (singletons are trivially cohesive), or
-        \item $c \ge 1$, $|S| \ge c+1$, and $\kappa_G(u,v) \ge c$ for all distinct $u, v \in S$.
+        \item $c = 0$ and $|S| = 1$, or
+        \item $c \ge 1$, $|S| \ge c+1$, and $\kappa_G(u,v) \ge c$ for all distinct $u,v \in S$.
     \end{enumerate}
 \end{definition}
 
-By Menger's theorem, condition (2) requires that every vertex pair in $S$ remains mutually reachable after removing any $c-1$ vertices from $G$. The vertex-disjoint paths witnessing this robustness may traverse vertices outside $S$; thus, $c$-cohesiveness depends on the global embedding of $S$ in $G$, not solely on the induced subgraph $G[S]$.
+By Menger's theorem, condition (2) ensures every vertex pair in $S$ remains connected after the removal of any $c-1$ vertices from $G$. Crucially, the vertex-disjoint paths that witness this robustness may use vertices outside $S$; thus, $c$-cohesiveness is a property of the set's \emph{embedding in the full graph}, not merely of its induced subgraph $G[S]$.
 
-A $c$-cohesive set is \emph{maximal} if adding any vertex violates $c$-cohesiveness; such sets are called \emph{$c$-blocks}.
-A $c$-cohesive set is (inclusion-wise) \emph{minimal} if no proper non-empty subset is $c$-cohesive. 
-Definition~\ref{def:c-cohesive} implies: (i) cohesiveness is monotone—if $S$ is $c$-cohesive, then $S$ is $c'$-cohesive for all $c' \le c$; (ii) any minimal $c$-cohesive set has exactly $c+1$ vertices; (iii) every $(c'{+}1)$-subset of such a minimal set is minimal $c'$-cohesive for some $c' < c$.
+A $c$-cohesive set is \emph{maximal} (called a \emph{$c$-block}) if no proper superset is $c$-cohesive, and \emph{minimal} if none of its proper subsets is $c$-cohesive. Key properties follow directly:
+\begin{itemize}[leftmargin=*,nosep]
+    \item \textbf{Monotonicity:} If $S$ is $c$-cohesive, it is also $c'$-cohesive for all $0 \le c' \le c$.
+    \item \textbf{Size of Minimal Sets:} Every minimal $c$-cohesive set has exactly $c+1$ vertices.
+    \item \textbf{Downward Closure:} If $S$ is minimal $c$-cohesive and $c' < c$, then some $(c'+1)$-subset of $S$ is minimal $c'$-cohesive.
+\end{itemize}
 
-Minimal cohesive sets thus serve as atomic motifs of structural resilience, while larger cohesive regions assemble from their overlaps via the following property.
+Minimal cohesive sets are the basic units of robust structure.
+They can aggregate into larger cohesive regions through overlap:
 
 \begin{lemma}
     \label{lem:union_cohesive}
@@ -27,85 +32,20 @@ Minimal cohesive sets thus serve as atomic motifs of structural resilience, whil
 \end{lemma}
 
 \subsection{The Cohesive Simplicial Complex}
-We consolidate all cohesive motifs into a simplicial complex organizing them across scales.
-
+We integrate all minimal cohesive sets into a single combinatorial-topological object.
 \begin{definition}[Cohesive Simplicial Complex]
     \label{def:cohesive-complex}
-    The \emph{cohesive simplicial complex} $\Delta(G)$ is the abstract simplicial complex whose simplices are all non-empty subsets of $V(G)$ that are $c$-cohesive for some $c \ge 0$.
+    The \emph{cohesive simplicial complex} $\Delta(G)$ is the abstract simplicial complex whose 
+    simplices are all non-empty subsets of $V(G)$ that are \emph{minimal $c$-cohesive} for some $c \ge 0$.
 \end{definition}
+Closure under taking subsets follows from the monotonicity and downward-closure properties, satisfying the axioms of an abstract simplicial complex.
+The original graph is preserved by labeling each $1$-simplex $\{u,v\}$ with $\ell(\{u,v\}) = \mathbb{1}[(u,v) \in E(G)]$.
 
-Closure under non-empty subsets follows from monotonicity of cohesiveness, satisfying the axioms of an abstract simplicial complex. For simplex $S \in \Delta(G)$, its dimension is $\dim(S) = |S| - 1$, and its \emph{cohesion level} is the largest $c$ such that $S$ is $c$-cohesive.
+For a simplex $\sigma$, its dimension $\dim(\sigma)=|\sigma|-1$ equals its cohesion level $c$. The union of overlapping simplices represents a larger cohesive region whose cohesion level is determined by the minimum size of their pairwise intersections.
+Thus $\Delta(G)$ provides a multi-scale topological representation: its $1$-skeleton retains local adjacency, while each higher-dimensional simplex ($\dim \ge 2$) encodes a globally robust, multi-vertex interaction pattern invisible to standard GNNs.
 
-A key property is the structure of its $1$-skeleton. Since any two vertices $u,v$ in the same connected component of $G$ satisfy $\kappa_G(u,v) \ge 1$, they form a $1$-cohesive set. Consequently, $\Delta(G)^{(1)}$ is a complete graph on each connected component of $G$. To preserve the original adjacency structure, we annotate each $1$-simplex $\{u,v\}$ with binary label $\ell(\{u,v\}) = \mathds{1}[(u,v) \in E(G)]$.
-
-This construction yields a multi-scale topological representation of $G$ in which higher-dimensional simplices encode dense, resilient interaction patterns invisible to standard message-passing GNNs operating solely on $E(G)$.
-
-\subsection{Graph Decomposition via Cohesiveness}
+\subsection{Graph Invariants via Cohesive Simplicial Complex}
 
 Any connected graph admits a canonical decomposition into a tree of $2$-connected components, known as its \emph{block–cut tree}. 
 Each node of this tree is either a \emph{block} (a maximal $2$-connected subgraph, a bridge (or an edge connecting two vertices), or an isolated vertex) or a \emph{cut vertex} (also called an articulation point), and edges encode incidences between blocks and cut vertices. 
 A cut vertex is a vertex whose removal strictly increases the number of connected components.
-
-Subsequently, 
-
-
-
-% A **\(k\)-block tree decomposition** is a generalization of tree decompositions that captures higher-order connectivity in graphs by organizing them into a tree-like structure where each node (called a *bag*) contains a subset of vertices, and the intersection of bags satisfies certain connectivity properties related to \(k\)-blocks—maximal sets of vertices that cannot be separated by fewer than \(k\) vertices.
-
-% Formally, let \(G = (V, E)\) be an undirected graph. A **\(k\)-block tree decomposition** of \(G\) is a pair \((T, \{X_t\}_{t \in V(T)})\), where \(T\) is a tree and each \(X_t \subseteq V\) is a bag associated with a node \(t\) of \(T\), satisfying the following conditions:
-
-% \begin{enumerate}
-%     \item \(\bigcup_{t \in V(T)} X_t = V\);
-%     \item For every edge \(\{u, v\} \in E\), there exists a node \(t \in V(T)\) such that \(\{u, v\} \subseteq X_t\);
-%     \item For every vertex \(v \in V\), the set \(\{ t \in V(T) \mid v \in X_t \}\) induces a connected subtree of \(T\);
-%     \item For every separator \(S \subseteq V\) with \(|S| < k\), the graph \(G - S\) has at most one connected component containing a \(k\)-block, and this property is reflected in the tree structure: if two bags \(X_{t_1}, X_{t_2}\) both contain a common \(k\)-block \(B\), then all bags on the unique path between \(t_1\) and \(t_2\) in \(T\) also contain \(B\).
-% \end{enumerate}
-
-% Equivalently, a \(k\)-block tree decomposition can be viewed as a tree decomposition in which the adhesion (i.e., the size of intersections \(X_t \cap X_{t'}\) for adjacent \(t, t' \in T\)) is less than \(k\), and each torso (the graph obtained by turning each neighborhood of a separator into a clique) either has no \(k\)-block or isolates a unique \(k\)-block.
-
-
-% \paragraph{Special Cases.}
-% \begin{itemize}[leftmargin=*,nosep]
-%     \item $k = 1$: the $1$-block tree decomposition coincides with the
-%     classical block–cut tree (decomposition into $2$-connected
-%     components).
-%     \item $k = 2$: the $2$-block tree decomposition coincides with the
-%     Tutte decomposition into $3$-connected components.
-% \end{itemize}
-% The hierarchical structure of the cohesive simplicial complex allows us to decompose a graph into $k$-blocks.
-
-% \begin{definition}[$k$-block]
-% A \emph{$k$-block} in a graph $G$ is a maximal vertex set $B \subseteq V(G)$ with $|B| \geq k$ such that no separation $(A,X,B)$ of $G$ with $|X| < k$ has vertices of $B$ in both $A \setminus X$ and $B \setminus X$.
-% Equivalently: no two vertices of $B$ can be separated by deleting fewer than $k$ vertices from $G$.
-% \end{definition}
-
-% \begin{definition}[Tree decomposition displaying $k$-blocks]
-% A tree decomposition $(T, \{V_t \mid t \in V(T)\})$ of $G$ \emph{displays} a $k$-block $B$ if there exists a node $t \in V(T)$ such that $B \subseteq V_t$ and $B \not\subseteq V_{t'}$ for any neighbor $t'$ of $t$.
-% \end{definition}
-
-% \begin{definition}[$k$-block tree decomposition]
-% A \emph{$k$-block tree decomposition} of a finite graph $G$ is a tree decomposition $(T, \{V_t\})$ satisfying:
-% \begin{enumerate}[label=(\roman*)]
-%     \item \textbf{Adhesion $< k$:} $|V_t \cap V_{t'}| < k$ for every edge $tt' \in E(T)$;
-%     \item \textbf{Displays all separable $k$-blocks:} every $k$-block $B$ that can be separated from $V(G) \setminus B$ by fewer than $k$ vertices is displayed by some part $V_t$.
-% \end{enumerate}
-% \end{definition}
-
-
-% We show that facets admit a reversible decomposition of the cohesive simplicial complex into a tree-like structure.
-% This is based on the below observations.
-
-% \begin{lemma}
-%     Let $G$ be a connected graph that is not complete. Suppose $G$ contains at least one $c$-cohesive set, but no $(c+1)$-cohesive set. 
-%     Then there exists a minimal separator $S \subseteq V(G)$ with $|S| \le c$.
-% \end{lemma}
-
-% \begin{proof}
-%     Since $G$ is connected, not complete, and contains no $(c+1)$-cohesive set, we claim that the vertex connectivity $\kappa(G)$ satisfies $\kappa(G) \le c$. 
-
-%     Suppose, for contradiction, that $\kappa(G) \ge c+1$. Then, by definition of vertex connectivity, the removal of any set of at most $c$ vertices leaves $G$ connected. In particular, for any two distinct vertices $u, v \in V(G)$, there exist at least $c+1$ internally vertex-disjoint $u$--$v$ paths (by Menger’s Theorem). Hence $\kappa_G(u,v) \ge c+1$ for all distinct $u,v \in V(G)$. 
-
-%     Since $G$ is not complete, $|V(G)| \ge 3$, and because it is connected with $\kappa(G) \ge c+1$, we must have $|V(G)| \ge c+2$ (as a $(c+1)$-connected graph has at least $c+2$ vertices). Therefore, $V(G)$ itself is a $(c+1)$-cohesive set—contradicting the assumption that no such set exists.
-
-%     Thus $\kappa(G) \le c$. By definition of vertex connectivity, there exists a separator of size $\kappa(G) \le c$. Among all such separators, choose one that is inclusion-wise minimal; this is a minimal separator $S$ with $|S| \le c$, as required.
-% \end{proof}
